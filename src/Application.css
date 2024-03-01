@@ -1,0 +1,74 @@
+.hidden {
+    display: none;
+}
+
+  .application{
+    padding-left: 200px;
+  
+  }
+  .jobappli{
+    background-color:rgb(229, 233, 237);
+    min-height: 35cm;
+    font-size: 16px;
+    font-weight: 600;
+    font-family: inherit;
+  }
+  .label-custom {
+    font-size: 17px;
+    font-family:  Calisto MT;
+    font-weight: bold;
+  }
+  
+  .label-custom1 {
+    font-size: 20px;
+    font-family:  Calisto MT;
+    font-weight: bold;
+    color: blue;
+  }
+  .id3{
+    font-size: 18px;
+    font-weight: bold;
+    padding-top: 150px;
+   
+  }
+  
+  .addmore{
+    /* background-color: rgb(246, 226, 74); */
+    /* background-color: rgb(87, 186, 186); */
+    width: 50%;
+    font-size: 20px;
+    font-family:  Calisto MT;
+    font-weight: bold;
+    min-height: 40vh;
+  }
+  .link{
+    left: 0;
+  }
+  .password{
+font-weight: bold;
+  }
+  .default{
+    font-weight: bold;
+    font-size: 18px;
+  }
+  .id15{
+    padding-left: 40px;
+    padding-right: 50px;
+    
+  }
+  .default1{
+   padding-left: 10%;
+   padding-right: 10%;
+  }
+  .defaultpassword{
+    font-weight:600;
+    font-size: 15px;
+  }
+  .addmore{
+    padding-left: 30%;
+  }
+  .addmore1{
+    font-weight:600;
+    font-size: 18px;
+  
+  }
