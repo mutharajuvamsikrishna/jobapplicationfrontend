@@ -92,6 +92,10 @@ export const postUserAddmore = (data1) => {
   const headers = getApiHeaders();
   return Api.post("/persave",data1,headers)
 }
+export const putUserAddmore = (data1) => {
+  const headers = getApiHeaders();
+  return Api.put("/updateDetails",data1,headers)
+}
 
 export const postUserForgetPassword = (data) => {
   

@@ -130,8 +130,8 @@ const AdminEdit = () => {
       if (name === "edate") {
         const minDate = new Date(formData.sdate); // Assuming you want to compare with the current date
         const enteredDate = new Date(value);
-        const maxDate= new Date();
-        if (enteredDate <= minDate||enteredDate>=maxDate) {
+        const maxDate = new Date();
+        if (enteredDate <= minDate || enteredDate >= maxDate) {
           return "Invalid Date";
         }
       }
@@ -139,7 +139,7 @@ const AdminEdit = () => {
         const minDate = new Date(); // Assuming you want to compare with the current date
         const enteredDate = new Date(value);
 
-        if (enteredDate >minDate) {
+        if (enteredDate > minDate) {
           return "Invalid Date";
         }
       }
@@ -237,11 +237,11 @@ const AdminEdit = () => {
         return "required";
       }
       if (name === "prevToDate") {
-        const maxDate=new Date();
+        const maxDate = new Date();
         const minDate = new Date(formData.prevFromDate); // Assuming you want to compare with the current date
         const enteredDate = new Date(value);
 
-        if ((enteredDate <= minDate)||(enteredDate>=maxDate)) {
+        if (enteredDate <= minDate || enteredDate >= maxDate) {
           return "Invalid Date";
         }
       }
@@ -287,7 +287,7 @@ const AdminEdit = () => {
 
         const maxDate = new Date();
 
-        if ((enteredDate <= minDate)||(enteredDate>=maxDate)) {
+        if (enteredDate <= minDate || enteredDate >= maxDate) {
           return "Invalid Date";
         }
       }
@@ -341,7 +341,10 @@ const AdminEdit = () => {
   };
   if (loading) {
     return (
-      <div className="d-flex justify-content-center align-items-center" style={{ height: "100vh" }}>
+      <div
+        className="d-flex justify-content-center align-items-center"
+        style={{ height: "100vh" }}
+      >
         <div className="spinner-border text-primary" role="status">
           <span className="visually-hidden">Loading...</span>
         </div>
@@ -440,7 +443,7 @@ const AdminEdit = () => {
                 <tr>
                   <th>Job Applied For</th>
                   <td>
-                  <input
+                    <input
                       className="form-control"
                       type="text"
                       name="id"
@@ -891,13 +894,13 @@ const AdminEdit = () => {
                 )}
                 {(resstate === "yes" || formData.prevCompanyName1 !== "") && (
                   <>
-                   <tr>
-                  <td colSpan={2}></td>
-                  <td colSpan={2}>
-                    <h6>Previous Company-1 Details</h6>
-                  </td>
-                  <td colSpan={2}></td>
-                </tr>
+                    <tr>
+                      <td colSpan={2}></td>
+                      <td colSpan={2}>
+                        <h6>Previous Company-1 Details</h6>
+                      </td>
+                      <td colSpan={2}></td>
+                    </tr>
                     <tr>
                       <td>
                         <th>Previous Company-1</th>
@@ -994,8 +997,7 @@ const AdminEdit = () => {
                           onChange={handleInputChange}
                           onFocus={handleInputChange}
                           min={formData.prevFromDate1}
-                          max={date1
-                          }
+                          max={date1}
                           required
                         />
                         <div className="text-danger">{errors.prevToDate1}</div>
@@ -1047,7 +1049,6 @@ const AdminEdit = () => {
                           value={formData.val5 || ""}
                           onChange={handleInputChange}
                           onFocus={handleInputChange}
-                         
                         />
                         <div className="text-danger">{errors.val5}</div>
                       </td>
@@ -1133,7 +1134,6 @@ const AdminEdit = () => {
                       onFocus={handleInputChange}
                       style={{ resize: "vertical" }}
                       rows={1}
-                      
                       maxLength={40}
                     />
                   </td>
@@ -1153,8 +1153,15 @@ const AdminEdit = () => {
             </center>
           </form>
         )}
-
-        <br />
+        <div className="pt-2 pb-2 mt-3">
+         <button
+          className="btn btn-primary"
+          onClick={() =>navigate("/adminpersonaledit",{state:{data:data}})}
+        >
+          ViewPersonal
+        </button>
+        </div>
+        
         <br />
         <Link to="/viewalldetails" state={{ data }}>
           Go Back

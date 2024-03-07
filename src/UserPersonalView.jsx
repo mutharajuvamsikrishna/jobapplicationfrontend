@@ -4,7 +4,7 @@ import { Link, useLocation, useNavigate } from "react-router-dom";
 import "./ViewProApplication.css"; // Import your custom CSS file
 import { CgProfile } from "react-icons/cg";
 import { getViewAddmore } from "./Services/Api";
-const AdminPersonalView = () => {
+const UserPersonalView = () => {
   const [loading, setLoading] = useState(true);
   const location = useLocation();
   const [fileContent,setFileContent]=useState([]);
@@ -40,7 +40,15 @@ const AdminPersonalView = () => {
   const handleSubmit2 = () => {
     navigate("/profile", { state: { data: data } });
   };
-  
+  const handleDownload = (fileName, content, fileType) => {
+    const blob = new Blob([content], { type: fileType });
+    const link = document.createElement('a');
+    link.href = URL.createObjectURL(blob);
+    link.download = fileName;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
 const handleSubmit5=()=>{
    navigate("/ViewAllPersonal",{state:{data:data}})
 }
@@ -402,7 +410,16 @@ const handleSubmit5=()=>{
                 </tr>
               </tbody>
             </table>
-           
+            <center>
+              <button
+                type="submit"
+                className="btn btn-primary"
+                onClick={handleSubmit5}
+                style={{ width: "150px" }}
+              >
+                Edit
+              </button>
+            </center>
           </form>
         )}
         <br />
@@ -420,4 +437,4 @@ const handleSubmit5=()=>{
   );
 };
 
-export default AdminPersonalView;
+export default UserPersonalView;

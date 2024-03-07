@@ -43,6 +43,7 @@ import UserPersonalEdit from "./UserPersonalEdit";
 import AdminProfile from "./AdminProfile";
 import AdminRegfail from "./Adminregfail";
 import AdminLoginInvalid from "./AdminLoginInvalid";
+import UserPersonalView from "./UserPersonalView";
 function App() {
   return (
     <div className="maincontainer">
@@ -102,6 +103,7 @@ function App() {
           <Route path="/ViewAllPersonal" element={<UserPersonalEdit />} />
           <Route path="/loginfail" element={<AdminLoginInvalid />} />
           <Route path="/managejobid" element={<ManageOnieJob />} />
+          <Route path="/personalview" element={<UserPersonalView />} />
         </Routes>
       </Router>
     </div>

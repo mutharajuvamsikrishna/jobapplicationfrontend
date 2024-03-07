@@ -1,20 +1,29 @@
 import React, { useState, useEffect } from "react";
-import axios from "axios";
-import { useLocation, useNavigate, Link, Navigate } from "react-router-dom";
+import { useLocation, useNavigate, Link,} from "react-router-dom";
 import "bootstrap/dist/css/bootstrap.min.css"; // Import Bootstrap CSS
 import "./Application.css";
 import { postUserAddmore, getViewAddmore } from "./Services/Api";
 import { CgProfile } from "react-icons/cg";
 import UserPersonalEdit from "./UserPersonalEdit";
+import UserPersonalView from "./UserPersonalView";
 const PersonalApplication = () => {
   const location = useLocation(); // Move this line before any references to 'location'
-
   const [formdata, setFormdata] = useState([]);
+  const [adharfile, setAdharfile] = useState(null);
+  const [panfile,setPanfile]=useState(null);
+  const [passportfile,setPassportfile]=useState(null);
+  const [visfile,setVisafile]=useState(null);
+  const [otherFile,setOtherfile]=useState(null);
+
+  const [adharFileSizeError, setAdharFileSizeError] = useState("");
+  const [panFileSizeError, setPanFileSizeError] = useState("");
+  const [passportFileSizeError, setPassportFileSizeError] = useState("");
+  const [visaFileSizeError, setVisaFileSizeError] = useState("");
+  const [otherFileSizeError, setOtherFileSizeError] = useState("");
   const email = location.state.data.email; // Now you can access 'locat
   const data = {
     email: email,
   };
-
   const [formData, setFormData] = useState({
     regno: "",
     name: "",
@@ -35,6 +44,7 @@ const PersonalApplication = () => {
     state: "",
     pinnumber: "",
     email: email,
+    aadharFile:null,
   });
   const [errors, setErrors] = useState({
     regno: "",
@@ -80,10 +90,42 @@ const PersonalApplication = () => {
 
   const handleSubmit = (event) => {
     event.preventDefault();
+    if (
+      adharFileSizeError ||
+      panFileSizeError ||
+      passportFileSizeError ||
+      visaFileSizeError
+    ) {
+      console.log("File size error. Form not submitted.");
+      return;
+    }
     if (!Object.values(errors).some((error) => error !== "")) {
-      postUserAddmore(formData)
+      const data1 = new FormData();
+    data1.append('aadharFile',adharfile);
+    data1.append('panFile',panfile)
+    data1.append("passportFile",passportfile)
+data1.append("visaFile",visfile)
+data1.append("otherFile",otherFile)
+    data1.append("email",formData.email)
+    data1.append("aadhar",formData.adhar)
+    data1.append("pan",formData.pan)
+    data1.append("val1",formData.val1)
+    data1.append("status1",formData.status1)
+    data1.append("passportnumber",formData.passportnumber)
+    data1.append("exp1",formData.exp1)
+    data1.append("val2",formData.val2)
+    data1.append("status2",formData.status2)
+    data1.append("visanumber",formData.visanumber)
+    data1.append("exp2",formData.exp2)
+    data1.append("gender",formData.gender)
+    data1.append("date",formData.date)
+    data1.append("address",formData.adress)
+    data1.append("city",formData.city)
+    data1.append("state",formData.state)
+    data1.append("pinnumber",formData.pinnumber)
+      postUserAddmore(data1)
         .then((response) => {
-          if (response.data === "sucess") {
+          if (response.status=200) {
             navigate("/success", { state: { data: formData } }); // Use navigate to change the route
           } else {
             navigate("/regfail");
@@ -95,10 +137,10 @@ const PersonalApplication = () => {
         });
     }
   };
+  
   // Function to handle changes in form fields
   const handleInputChange = (event) => {
     const { name, value } = event.target;
-
     if (name === "val1") {
       setShowAdditionalRows({
         ...showAdditionalRows,
@@ -128,8 +170,6 @@ const PersonalApplication = () => {
     }));
   };
   const validateField = (name, value) => {
-    // Implement your validation logic here
-    // Return an error message if the field is not valid, otherwise return an empty string
     if (name === "gender" && value === "") {
       return "Please select Gender";
     }
@@ -251,9 +291,83 @@ const PersonalApplication = () => {
     }
     return "";
   };
- 
+  const allowedFileTypes = ['image/png', 'image/jpeg', 'image/jpg'];
+  const handleFileChange = (e) => {
+    const { name } = e.target;
+    const file = e.target.files[0];
+  
+    switch (name) {
+      case "aadharFile":
+        setAdharfile(file);
+        
+        if (file && !allowedFileTypes.includes(file.type)) {
+          setAdharFileSizeError('Please choose a PNG, JPG, or JPEG file.');
+          return;
+        }
+      
+        if (file && (file.size / 1024 < 20 || file.size / 1024 > 50)) {
+          setAdharFileSizeError("File size should be between 20KB and 50KB.");
+        } else {
+          setAdharFileSizeError("");
+        }
+        break;
+      case "panFile":
+        setPanfile(file);
+        if (file && !allowedFileTypes.includes(file.type)) {
+          setPanFileSizeError('Please choose a PNG, JPG, or JPEG file.');
+          return
+        }
+        if (file && (file.size / 1024 < 20 || file.size / 1024 > 50)) {
+          setPanFileSizeError("File size should be between 20KB and 50KB..");
+        } else {
+          setPanFileSizeError("");
+        }
+        break;
+      case "passportFile":
+        setPassportfile(file);
+        if (file && !allowedFileTypes.includes(file.type)) {
+          setPassportFileSizeError('Please choose a PNG, JPG, or JPEG file.');
+          return;
+        }
+        if (file && (file.size / 1024 < 20 || file.size / 1024 > 50)) {
+          setPassportFileSizeError("File size should be between 20KB and 50KB..");
+        } else {
+          setPassportFileSizeError("");
+        }
+        break;
+      case "visaFile":
+        setVisafile(file);
+        if (file && !allowedFileTypes.includes(file.type)) {
+          setVisaFileSizeError('Please choose a PNG, JPG, or JPEG file.');
+          return;
+        }
+        if (file && (file.size / 1024 < 20 || file.size / 1024 > 50)) {
+          setVisaFileSizeError("File size should be between 20KB and 50KB..");
+        } else {
+          setVisaFileSizeError("");
+        }
+        break;
+        case "otherFile":
+          setOtherfile(file);
+          if (file && file.type !== "application/pdf") {
+            setOtherFileSizeError('Please choose a PDF file.');
+            return;
+          }
+          if (file && (file.size / 1024 < 20 || file.size / 1024 > 100)) {
+            setOtherFileSizeError("File size should be between 20KB and 100KB.");
+          } else {
+            setOtherFileSizeError("");
+          }
+          break;
+        
+      // Add more cases for other file inputs
+      default:
+        break;
+    }
+  };
+  
 if(formdata.adhar!==undefined){
-return <div><UserPersonalEdit/></div>
+return <div><UserPersonalView/></div>
 }
 const handleSubmit2 = () => {
   const data = {
@@ -306,8 +420,7 @@ const handleSubmit2 = () => {
                     value={formData.gender}
                     onChange={handleInputChange}
                     onFocus={handleInputChange}
-                    className="form-control"
-                    required
+                    className="form-control" required
                   >
                     <option value="">Select</option>
                     <option value="male">Male</option>
@@ -328,10 +441,10 @@ const handleSubmit2 = () => {
                     value={formData.date}
                     onChange={handleInputChange}
                     onFocus={handleInputChange}
-                    className="form-control"
+                    className="form-control" required
                     id="notice"
                     autoComplete="date"
-                    required
+                    
                   />
                   <div className="text-danger">{errors.date}</div>
                 </div>
@@ -352,10 +465,10 @@ const handleSubmit2 = () => {
                     value={formData.adhar}
                     onChange={handleInputChange}
                     onFocus={handleInputChange}
-                    className="form-control"
+                    className="form-control" required
                     id="lwd"
                     autoComplete=""
-                    required
+                    
                   />
                   <div className="text-danger">{errors.adhar}</div>
                 </div>
@@ -376,10 +489,10 @@ const handleSubmit2 = () => {
                     value={formData.pan}
                     onChange={handleInputChange}
                     onFocus={handleInputChange}
-                    className="form-control"
+                    className="form-control" required
                     id="expertise"
                     autoComplete=""
-                    required
+                    
                   />
                   <div className="text-danger">{errors.pan}</div>
                 </div>
@@ -397,8 +510,8 @@ const handleSubmit2 = () => {
                     value={formData.val1}
                     onChange={handleInputChange}
                     onFocus={handleInputChange}
-                    className="form-control"
-                    required
+                    className="form-control" required
+                    
                   >
                     <option value="">Select..</option>
                     <option value="yes">Yes</option>
@@ -425,10 +538,10 @@ const handleSubmit2 = () => {
                         value={formData.passportnumber}
                         onChange={handleInputChange}
                         onFocus={handleInputChange}
-                        className="form-control"
+                        className="form-control" required
                         id="countries"
                         autoComplete=""
-                        required
+                        
                       />
                       <div className="text-danger">{errors.passportnumber}</div>
                     </div>
@@ -447,10 +560,10 @@ const handleSubmit2 = () => {
                         value={formData.status1}
                         onChange={handleInputChange}
                         onFocus={handleInputChange}
-                        className="form-control"
+                        className="form-control" required
                         id="countries"
                         autoComplete=""
-                        required
+                        
                       />
                       <div className="text-danger">{errors.status1}</div>
                     </div>
@@ -470,10 +583,10 @@ const handleSubmit2 = () => {
                         value={formData.exp1}
                         onChange={handleInputChange}
                         onFocus={handleInputChange}
-                        className="form-control"
+                        className="form-control" required
                         id="cities"
                         autoComplete=""
-                        required
+                        
                       />
                       <div className="text-danger">{errors.exp1}</div>
                     </div>
@@ -492,8 +605,8 @@ const handleSubmit2 = () => {
                     value={formData.val2}
                     onChange={handleInputChange}
                     onFocus={handleInputChange}
-                    className="form-control"
-                    required
+                    className="form-control" required
+                    
                   >
                     <option value="">Select</option>
                     <option value="yes">Yes</option>
@@ -525,10 +638,10 @@ const handleSubmit2 = () => {
                         value={formData.visanumber}
                         onChange={handleInputChange}
                         onFocus={handleInputChange}
-                        className="form-control"
+                        className="form-control" required
                         id="languages"
                         autoComplete=""
-                        required
+                        
                       />
                       <div className="text-danger">{errors.visanumber}</div>
                     </div>
@@ -550,10 +663,10 @@ const handleSubmit2 = () => {
                         value={formData.status2}
                         onChange={handleInputChange}
                         onFocus={handleInputChange}
-                        className="form-control"
+                        className="form-control" required
                         id="languages"
                         autoComplete=""
-                        required
+                        
                       />
                       <div className="text-danger">{errors.status2}</div>
                     </div>
@@ -578,10 +691,10 @@ const handleSubmit2 = () => {
                         value={formData.exp2}
                         onChange={handleInputChange}
                         onFocus={handleInputChange}
-                        className="form-control"
+                        className="form-control" required
                         id="languages"
                         autoComplete=""
-                        required
+                        
                       />
                       <div className="text-danger">{errors.exp2}</div>
                     </div>
@@ -610,10 +723,10 @@ const handleSubmit2 = () => {
                     value={formData.adress}
                     onChange={handleInputChange}
                     onFocus={handleInputChange}
-                    className="form-control"
+                    className="form-control" required
                     id="pskills"
                     autoComplete=""
-                    required
+                    
                   />
                   <div className="text-danger">{errors.adress}</div>
                 </div>
@@ -635,10 +748,10 @@ const handleSubmit2 = () => {
                     value={formData.city}
                     onChange={handleInputChange}
                     onFocus={handleInputChange}
-                    className="form-control"
+                    className="form-control" required
                     id="cuctc"
                     autoComplete=""
-                    required
+                    
                   />
                   <div className="text-danger">{errors.city}</div>
                 </div>
@@ -664,10 +777,10 @@ const handleSubmit2 = () => {
                     value={formData.state}
                     onChange={handleInputChange}
                     onFocus={handleInputChange}
-                    className="form-control"
+                    className="form-control" required
                     id="expctc"
                     autoComplete=""
-                    required
+                    
                   />
                   <div className="text-danger">{errors.state}</div>
                 </div>
@@ -689,15 +802,94 @@ const handleSubmit2 = () => {
                     value={formData.pinnumber}
                     onChange={handleInputChange}
                     onFocus={handleInputChange}
-                    className="form-control"
+                    className="form-control" required
                     id="link"
                     autoComplete=""
-                    required
+                    
                   />
                   <div className="text-danger">{errors.pinnumber}</div>
                 </div>
               </div>
+              <div className="form-group row my-1">
+              <h5 className="text-center mb-4">
+             Upload Files
+            </h5>
 
+            <label htmlFor="lwd" className="col-sm-2 col-form-label my-1">
+  Aadhar File 
+</label>{" "}
+<div className="col-sm-3 my-1">
+  <input
+    type="file"
+    name="aadharFile"
+    onChange={handleFileChange}
+    className="form-control" 
+    required
+  />
+  {adharFileSizeError && <div className="text-danger">{adharFileSizeError}</div>}
+</div>
+
+                <label htmlFor="lwd" className="col-sm-2 col-form-label my-1">
+                  PAN File
+                </label>{" "}
+                {/* Add my-1 class here */}
+                <div className="col-sm-3 my-1">
+                  <input
+                    type="file"
+                    name="panFile"
+                    onChange={handleFileChange}
+                    className="form-control" 
+                    required
+                  />
+                   {panFileSizeError && <div className="text-danger">{panFileSizeError}</div>}
+                </div>
+                  </div>
+                  <div className="form-group row">
+                  <label htmlFor="lwd" className="col-sm-2 col-form-label my-1">
+                 Resume
+                </label>{" "}
+                {/* Add my-1 class here */}
+                <div className="col-sm-3 my-1">
+                  <input
+                    type="file"
+                    name="otherFile"
+                    onChange={handleFileChange}
+                    className="form-control" 
+                    required
+                  />
+                   {otherFileSizeError && <div className="text-danger">{otherFileSizeError}</div>}
+                </div>
+                {/* </div> */}
+                  {/* <div className="form-group row my-1"> */}
+                  <label htmlFor="lwd" className="col-sm-2 col-form-label my-1">
+                (optional)  Passport File
+                </label>{" "}
+                {/* Add my-1 class here */}
+                <div className="col-sm-3 my-1">
+                  <input
+                    type="file"
+                    name="passportFile"
+                    onChange={handleFileChange}
+                    className="form-control" 
+                  />
+                   {passportFileSizeError && <div className="text-danger">{passportFileSizeError}</div>}
+                </div>
+                <div className="form-group row my-1">
+                <label htmlFor="lwd" className="col-sm-3 col-form-label my-1">
+                 (Optional) VISA File Upload
+                </label>{" "}
+                {/* Add my-1 class here */}
+                <div className="col-sm-3 my-1">
+                  <input
+                    type="file"
+                    name="visaFile"
+                    onChange={handleFileChange}
+                    className="form-control" 
+                  />
+                   {visaFileSizeError && <div className="text-danger">{visaFileSizeError}</div>}
+                   </div>
+                </div>
+                  </div>
               <div className="form-group row">
                 <br />
                 <div className="offset-sm-5 col-sm-10">
@@ -708,6 +900,7 @@ const handleSubmit2 = () => {
                   />
                 </div>
               </div>
+              
             </form>
             <br />
             <div className="text-center">

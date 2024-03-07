@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import axios from "axios";
+
 import { useLocation, useNavigate, Link } from "react-router-dom";
 import "bootstrap/dist/css/bootstrap.min.css"; // Import Bootstrap CSS
 import "./Application.css";
@@ -182,7 +182,7 @@ const Application = () => {
       postApplicationDetails(formData)
         .then((response) => {
           if (response.data === "SaveSucess") {
-            navigate("/personalapplication", { state: { data: formData } }); // Use navigate to change the route
+            navigate("/success", { state: { data: formData } }); // Use navigate to change the route
           } else {
             navigate("/regfail");
           }

@@ -76,7 +76,11 @@ const Profile = () => {
                 </tbody>
               </table>
             </center>
-
+<div style={{paddingTop:"20px",paddingBottom:"20px"}}>
+  <center>
+<button className="btn btn-primary" onClick={()=>navigate("/personalapplication",{state:{data:data}})}>Personal Details</button>
+  </center>
+</div>
             <div className="profile-info">
               <br />
               <center>
