@@ -58,11 +58,11 @@ const  Login=()=> {
     <div style={{ backgroundColor: "#f0f2f5", minHeight: "99vh" }}>
       <div
         className="row g-3 d-flex justify-content-center align-items-center"
-        style={{ paddingTop: "9%" }}
+        style={{ paddingTop: "5%" }}
       >
         <h3 className="mb-3 text-center">Login to ONiE Soft</h3>
 <div className="text-danger">{res&&(<h5 className="text-center">Invalid Credentials</h5>)}</div>
-        <div className="col-md-7 mb-2">
+        <div className="col-md-7 mb-1">
           <center>
             <form onSubmit={formik.handleSubmit}>
               <div id="register" className="col-md-5 mb-4">
@@ -146,6 +146,12 @@ const  Login=()=> {
               </div>
             </center>
           </div>
+        </div>
+        <div>
+          <center>
+            <p>OR</p>
+       <h4>  <a href="http://localhost:1279">Login With Google</a></h4> 
+          </center>
         </div>
       </div>
     </div>

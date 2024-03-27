@@ -1,7 +1,7 @@
 import React from "react";
 import "./App.css";
 
-import Onielogo from "./onielogo";
+import Onielogo from "./Onielogo";
 
 import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
 import Register from "./register";
@@ -44,6 +44,7 @@ import AdminProfile from "./AdminProfile";
 import AdminRegfail from "./Adminregfail";
 import AdminLoginInvalid from "./AdminLoginInvalid";
 import UserPersonalView from "./UserPersonalView";
+import UserOauth from "./UserOauth";
 function App() {
   return (
     <div className="maincontainer">
@@ -104,6 +105,7 @@ function App() {
           <Route path="/loginfail" element={<AdminLoginInvalid />} />
           <Route path="/managejobid" element={<ManageOnieJob />} />
           <Route path="/personalview" element={<UserPersonalView />} />
+          <Route path="/useroauth" element={<UserOauth />} />
         </Routes>
       </Router>
     </div>

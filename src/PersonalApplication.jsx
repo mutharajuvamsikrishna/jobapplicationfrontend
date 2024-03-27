@@ -4,7 +4,8 @@ import "bootstrap/dist/css/bootstrap.min.css"; // Import Bootstrap CSS
 import "./Application.css";
 import { postUserAddmore, getViewAddmore } from "./Services/Api";
 import { CgProfile } from "react-icons/cg";
-import UserPersonalEdit from "./UserPersonalEdit";
+import {Country,State, City }  from 'country-state-city';
+
 import UserPersonalView from "./UserPersonalView";
 const PersonalApplication = () => {
   const location = useLocation(); // Move this line before any references to 'location'
@@ -20,6 +21,9 @@ const PersonalApplication = () => {
   const [passportFileSizeError, setPassportFileSizeError] = useState("");
   const [visaFileSizeError, setVisaFileSizeError] = useState("");
   const [otherFileSizeError, setOtherFileSizeError] = useState("");
+  const [stateList,setStateList]=useState([]);
+  const [cityList,setCityList]=useState([]);
+  const [stateCode,setStateCode]=useState("");
   const email = location.state.data.email; // Now you can access 'locat
   const data = {
     email: email,
@@ -68,8 +72,11 @@ const PersonalApplication = () => {
   });
   useEffect(() => {
     fetchEmployee(email);
+fetchStates();
   }, [email]);
-
+const fetchStates=()=>{
+  setStateList(State.getStatesOfCountry("IN"))
+}
   const fetchEmployee = async (email) => {
     try {
       const response = await getViewAddmore(email);
@@ -79,14 +86,6 @@ const PersonalApplication = () => {
     }
   };
   const navigate = useNavigate();
-
-  const [showAdditionalRows1, setShowAdditionalRows1] = useState({
-    val2: "",
-  });
-
-  const [showAdditionalRows, setShowAdditionalRows] = useState({
-    val1: "", // Default value for the 'Onsite Travelled' select field
-  });
 
   const handleSubmit = (event) => {
     event.preventDefault();
@@ -141,27 +140,22 @@ data1.append("otherFile",otherFile)
   // Function to handle changes in form fields
   const handleInputChange = (event) => {
     const { name, value } = event.target;
-    if (name === "val1") {
-      setShowAdditionalRows({
-        ...showAdditionalRows,
-        val1: value,
+    const findState = stateList.find(sta => sta.name === value);
+  
+    if (findState) {
+      const stateCode = findState.isoCode; // Assuming the first timezone is used
+      setStateCode(stateCode)
+      setCityList(City.getCitiesOfState("IN",stateCode))
+      setFormData({
+        ...formData,
+        [name]: value,
+       
       });
     } else {
       setFormData({
         ...formData,
         [name]: value,
-      });
-    }
-
-    if (name === "val2") {
-      setShowAdditionalRows1({
-        ...showAdditionalRows1,
-        val2: value,
-      });
-    } else {
-      setFormData({
-        ...formData,
-        [name]: value,
+        
       });
     }
     setErrors((prevErrors) => ({
@@ -299,7 +293,10 @@ data1.append("otherFile",otherFile)
     switch (name) {
       case "aadharFile":
         setAdharfile(file);
-        
+        if(file===undefined){
+          setAdharFileSizeError("required")
+          return
+        }
         if (file && !allowedFileTypes.includes(file.type)) {
           setAdharFileSizeError('Please choose a PNG, JPG, or JPEG file.');
           return;
@@ -313,6 +310,10 @@ data1.append("otherFile",otherFile)
         break;
       case "panFile":
         setPanfile(file);
+        if(file===undefined){
+          setPanFileSizeError("required")
+          return;
+        }
         if (file && !allowedFileTypes.includes(file.type)) {
           setPanFileSizeError('Please choose a PNG, JPG, or JPEG file.');
           return
@@ -325,6 +326,11 @@ data1.append("otherFile",otherFile)
         break;
       case "passportFile":
         setPassportfile(file);
+        if (file === undefined) { // Checking if the file is empty
+          
+          setPassportFileSizeError("required");
+        return
+      }
         if (file && !allowedFileTypes.includes(file.type)) {
           setPassportFileSizeError('Please choose a PNG, JPG, or JPEG file.');
           return;
@@ -337,6 +343,11 @@ data1.append("otherFile",otherFile)
         break;
       case "visaFile":
         setVisafile(file);
+        if (file === undefined) { // Checking if the file is empty
+          
+          setVisaFileSizeError("required");
+        return;
+      }
         if (file && !allowedFileTypes.includes(file.type)) {
           setVisaFileSizeError('Please choose a PNG, JPG, or JPEG file.');
           return;
@@ -349,11 +360,15 @@ data1.append("otherFile",otherFile)
         break;
         case "otherFile":
           setOtherfile(file);
+          if(file===undefined){
+setOtherFileSizeError("required")
+return;
+          }
           if (file && file.type !== "application/pdf") {
             setOtherFileSizeError('Please choose a PDF file.');
             return;
           }
-          if (file && (file.size / 1024 < 20 || file.size / 1024 > 100)) {
+          if (file && (file.size / 1024 < 20 || file.size / 1024 > 300)) {
             setOtherFileSizeError("File size should be between 20KB and 100KB.");
           } else {
             setOtherFileSizeError("");
@@ -365,7 +380,6 @@ data1.append("otherFile",otherFile)
         break;
     }
   };
-  
 if(formdata.adhar!==undefined){
 return <div><UserPersonalView/></div>
 }
@@ -468,7 +482,7 @@ const handleSubmit2 = () => {
                     className="form-control" required
                     id="lwd"
                     autoComplete=""
-                    
+                  
                   />
                   <div className="text-danger">{errors.adhar}</div>
                 </div>
@@ -521,7 +535,7 @@ const handleSubmit2 = () => {
                 </div>
               </div>
 
-              {showAdditionalRows.val1 === "yes" && (
+              {formData.val1 === "yes" && (
                 <>
                   <div className="form-group row my-2 d-flex">
                     <label
@@ -590,6 +604,21 @@ const handleSubmit2 = () => {
                       />
                       <div className="text-danger">{errors.exp1}</div>
                     </div>
+                    <label htmlFor="lwd" className="col-sm-2 col-form-label my-1">
+                  Passport File
+                </label>{" "}
+                {/* Add my-1 class here */}
+                <div className="col-sm-3 my-1">
+                  <input
+                    type="file"
+                    name="passportFile"
+                    onChange={handleFileChange}
+                    onFocus={handleFileChange}
+                    className="form-control" 
+                    required
+                  />
+                   {passportFileSizeError && <div className="text-danger">{passportFileSizeError}</div>}
+                </div>
                   </div>
                
 
@@ -616,7 +645,7 @@ const handleSubmit2 = () => {
                 </div>
               </div>
 
-              {showAdditionalRows1.val2 === "yes" && (
+              {formData.val2 === "yes" && (
                 <>
                   <div className="form-group row my-2 d-flex">
                     {" "}
@@ -698,12 +727,76 @@ const handleSubmit2 = () => {
                       />
                       <div className="text-danger">{errors.exp2}</div>
                     </div>
+                    <label htmlFor="lwd" className="col-sm-2 col-form-label my-1">
+                  VISA File
+                </label>{" "}
+                {/* Add my-1 class here */}
+                <div className="col-sm-3 my-1">
+                  <input
+                    type="file"
+                    name="visaFile"
+                    onChange={handleFileChange}
+                    onFocus={handleFileChange}
+                    className="form-control" 
+                    required
+                  />
+                   {visaFileSizeError && <div className="text-danger">{visaFileSizeError}</div>}
+                   </div>
                   </div>
                 </>
               )}
                    </>
               )}
-              <div className="form-group row my-2 d-flex">
+            
+                <div className="form-group row my-2 d-flex">
+  <label htmlFor="state" className="col-sm-2 col-form-label my-1">
+    State
+  </label>
+  <div className="col-sm-3 my-1">
+  <select
+          name="state"
+          value={formData.state}
+          onChange={handleInputChange}
+          onFocus={handleInputChange}
+          className="form-control"
+          required
+        >
+          <option value="">Select State</option>
+          {stateList.map((state, index) => (
+            <option key={index} value={state.name}>
+              {state.name}
+            </option>
+          ))}
+        </select>
+    <div className="text-danger">{errors.state}</div>
+  </div>
+  <label
+                  htmlFor="expertise"
+                  className="col-sm-2 col-form-label my-1"
+                >
+                  City
+                </label>{" "}
+                {/* Add my-1 class here */}
+                <div className="col-sm-3 my-1">
+                <select
+          name="city"
+          value={formData.city}
+          onChange={handleInputChange}
+          onFocus={handleInputChange}
+          className="form-control"
+          required
+        >
+          <option value="">Select City</option>
+          {cityList.map((city, index) => (
+            <option key={index} value={city.name}>
+              {city.name}
+            </option>
+          ))}
+        </select>
+                  <div className="text-danger">{errors.city}</div>
+                </div>
+                </div>
+                <div className="form-group row my-2 d-flex">
                 {" "}
                 {/* Add my-2 class and d-flex class here */}
                 <label
@@ -730,60 +823,7 @@ const handleSubmit2 = () => {
                   />
                   <div className="text-danger">{errors.adress}</div>
                 </div>
-                {/* <div className="form-group row my-2 d-flex"> */}
-                <label
-                  htmlFor="expertise"
-                  className="col-sm-2 col-form-label my-1"
-                >
-                  City
-                </label>{" "}
-                {/* Add my-1 class here */}
-                <div className="col-sm-3 my-1">
-                  {" "}
-                  {/* Add my-1 class here */}
-                  <input
-                    type="text"
-                    placeholder="Enter City"
-                    name="city"
-                    value={formData.city}
-                    onChange={handleInputChange}
-                    onFocus={handleInputChange}
-                    className="form-control" required
-                    id="cuctc"
-                    autoComplete=""
-                    
-                  />
-                  <div className="text-danger">{errors.city}</div>
-                </div>
-              </div>
-
-              <div className="form-group row my-2 d-flex">
-                {" "}
-                {/* Add my-2 class and d-flex class here */}
-                <label
-                  htmlFor="expctc"
-                  className="col-sm-2 col-form-label my-1"
-                >
-                  State
-                </label>{" "}
-                {/* Add my-1 class here */}
-                <div className="col-sm-3 my-1">
-                  {" "}
-                  {/* Add my-1 class here */}
-                  <input
-                    type="text"
-                    placeholder="Enter State"
-                    name="state"
-                    value={formData.state}
-                    onChange={handleInputChange}
-                    onFocus={handleInputChange}
-                    className="form-control" required
-                    id="expctc"
-                    autoComplete=""
-                    
-                  />
-                  <div className="text-danger">{errors.state}</div>
-                </div>
+              
                 {/* <div className="form-group row my-2 d-flex"> Add my-2 class and d-flex class here */}
                 <label
                   htmlFor="expertise"
@@ -823,6 +863,7 @@ const handleSubmit2 = () => {
     type="file"
     name="aadharFile"
     onChange={handleFileChange}
+    onFocus={handleFileChange}
     className="form-control" 
     required
   />
@@ -838,6 +879,7 @@ const handleSubmit2 = () => {
                     type="file"
                     name="panFile"
                     onChange={handleFileChange}
+                    onFocus={handleFileChange}
                     className="form-control" 
                     required
                   />
@@ -854,40 +896,11 @@ const handleSubmit2 = () => {
                     type="file"
                     name="otherFile"
                     onChange={handleFileChange}
+                    onFocus={handleFileChange}
                     className="form-control" 
                     required
                   />
                    {otherFileSizeError && <div className="text-danger">{otherFileSizeError}</div>}
-                </div>
-                {/* </div> */}
-                  {/* <div className="form-group row my-1"> */}
-                  <label htmlFor="lwd" className="col-sm-2 col-form-label my-1">
-                (optional)  Passport File
-                </label>{" "}
-                {/* Add my-1 class here */}
-                <div className="col-sm-3 my-1">
-                  <input
-                    type="file"
-                    name="passportFile"
-                    onChange={handleFileChange}
-                    className="form-control" 
-                  />
-                   {passportFileSizeError && <div className="text-danger">{passportFileSizeError}</div>}
-                </div>
-                <div className="form-group row my-1">
-                <label htmlFor="lwd" className="col-sm-3 col-form-label my-1">
-                 (Optional) VISA File Upload
-                </label>{" "}
-                {/* Add my-1 class here */}
-                <div className="col-sm-3 my-1">
-                  <input
-                    type="file"
-                    name="visaFile"
-                    onChange={handleFileChange}
-                    className="form-control" 
-                  />
-                   {visaFileSizeError && <div className="text-danger">{visaFileSizeError}</div>}
-                   </div>
                 </div>
                   </div>
               <div className="form-group row">

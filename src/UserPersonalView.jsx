@@ -325,6 +325,16 @@ const handleSubmit5=()=>{
                   </div>
                   </td>
                   <td>Resume File</td>
+                  {fileContent[3]===undefined&&(
+                  <td>
+                  <div >
+                  <object data={`data:application/pdf;base64,${fileContent[2]}`} type="application/pdf" width="150" height="150">
+                  <p>Your browser does not support embedded PDFs.</p>
+                         </object>
+                  </div>
+                  </td>
+                 )}
+                  {fileContent[3]!==undefined&&(
                   <td>
                   <div >
                   <object data={`data:application/pdf;base64,${fileContent[4]}`} type="application/pdf" width="150" height="150">
@@ -332,6 +342,7 @@ const handleSubmit5=()=>{
                          </object>
                   </div>
                   </td>
+                 )}
                 </tr>
                 <tr>
                   <td></td>
@@ -339,7 +350,7 @@ const handleSubmit5=()=>{
     {/* Add a download link for the otherFile */}
     {fileContent[0] && (
       <a
-        href={`data:image/png;base64,${fileContent[0]}`}
+        href={`data:image/png;base64,${fileContent[3]}`}
         download="adhar.png"
       >
         Download Aadhar
@@ -359,7 +370,15 @@ const handleSubmit5=()=>{
     <td></td>
     <td>
     <td>
-    {fileContent[4] && (
+    {fileContent[3]===undefined && (
+      <a
+        href={`data:application/pdf;base64,${fileContent[2]}`}
+        download="resume.pdf"
+      >
+        Download Resume
+      </a>
+    )}
+     {fileContent[3]!==undefined && (
       <a
         href={`data:application/pdf;base64,${fileContent[4]}`}
         download="resume.pdf"
@@ -370,6 +389,8 @@ const handleSubmit5=()=>{
   </td>
     </td>
                 </tr>
+                {formData.val1==="yes"&&(
+                  <>
                 <tr>
                   <td>Passport File</td>
                   <td>
@@ -408,6 +429,8 @@ const handleSubmit5=()=>{
     )}
     </td>
                 </tr>
+                </>
+                )}
               </tbody>
             </table>
             <center>

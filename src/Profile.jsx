@@ -9,7 +9,6 @@ import { getProfiles, getViewAddmore } from "./Services/Api";
 import { useNavigate } from "react-router-dom";
 const Profile = () => {
   const [employee, setEmployee] = useState(null);
-  const [formData, setFormData] = useState([]);
   const location = useLocation();
   const navigate = useNavigate();
   const email = location.state.data.email;
@@ -22,7 +21,7 @@ const Profile = () => {
 
   const handleLogOut = () => {
     localStorage.clear();
-    navigate("/login");
+    navigate("/");
   };
 
   const fetchEmployee = (email) => {

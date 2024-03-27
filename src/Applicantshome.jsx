@@ -14,7 +14,7 @@ const Applicantshome = () => {
   // Access the data object passed from the previous route
   const data = location.state.data;
   const email = data.email;
-
+  const ename = formdata.ename;
   useEffect(() => {
     fetchEmployeeData(email);
   }, [email]);
@@ -36,16 +36,11 @@ const Applicantshome = () => {
         console.error('Error details:', error.response); 
       });
   };
- 
-
-  const ename = formdata.ename;
-
   const handleSubmit = (event) => {
     const data1={   
 ename:ename,
 email:email
     }
-   
     event.preventDefault();
     navigate("/application", { state: { data: data1 } });
 

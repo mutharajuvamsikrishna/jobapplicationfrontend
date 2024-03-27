@@ -39,7 +39,7 @@ if(!otpdata.otp.match(v46)){
         if (response.data === "adminchangeregsucess") {
           navigate("/adminchangepassword1", { state: { data: data } });
         } else {
-          navigate("/invalidotp");
+        alert("Invalid OTP")
         }
       })
       .catch((error) => {

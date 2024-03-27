@@ -41,7 +41,7 @@ if(!otpdata.otp.match(v46)){
 
           
         } else {
-          navigate("/invalidotp");
+          alert("Invalid OTP")
         }
       })
 

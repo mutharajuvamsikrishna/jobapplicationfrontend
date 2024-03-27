@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import axios from "axios";
+import { State, City } from "country-state-city";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import "./ViewProApplication.css"; // Import your custom CSS file
 import { CgProfile } from "react-icons/cg";
@@ -19,6 +19,9 @@ const UserPersonalEdit = () => {
   const [passportFileSizeError, setPassportFileSizeError] = useState("");
   const [visaFileSizeError, setVisaFileSizeError] = useState("");
   const [otherFileSizeError, setOtherFileSizeError] = useState("");
+  const [stateList, setStateList] = useState([]);
+  const [cityList, setCityList] = useState([]);
+  const [stateCode, setStateCode] = useState("");
   const email = location.state.data.email;
   const data = {
     email: email,
@@ -49,7 +52,27 @@ const UserPersonalEdit = () => {
   });
   useEffect(() => {
     fetchEmployeeData(email);
-  }, [email]);
+    fetchStates();
+}, [email]);
+
+useEffect(() => {
+    if (stateList.length > 0 && formData.state) {
+        fetchCities();
+    }
+}, [stateList, formData.state]);
+
+const fetchStates = () => {
+    setStateList(State.getStatesOfCountry("IN"));
+};
+
+const fetchCities = () => {
+    const findState = stateList.find((sta) => sta.name === formData.state);
+    if (findState) {
+        const stateCode = findState.isoCode;
+        setStateCode(stateCode);
+        setCityList(City.getCitiesOfState("IN", stateCode));
+    }
+};
 
   const fetchEmployeeData = (email) => {
     //axios
@@ -66,13 +89,13 @@ const UserPersonalEdit = () => {
         setLoading(false);
       });
   };
-
+  // Function to fetch Indian districts based on the selected state
   const handleInputChange = (event) => {
     const { name, value } = event.target;
-    setFormData((prevFormData) => ({
-      ...prevFormData,
+    setFormData({
+      ...formData,
       [name]: value,
-    }));
+    });
     setErrors((prevErrors) => ({
       ...prevErrors,
       [name]: validateField(name, value),
@@ -202,20 +225,20 @@ const UserPersonalEdit = () => {
     }
     return "";
   };
-  const allowedFileTypes = ['image/png', 'image/jpeg', 'image/jpg'];
+  const allowedFileTypes = ["image/png", "image/jpeg", "image/jpg"];
   const handleFileChange = (e) => {
     const { name } = e.target;
     const file = e.target.files[0];
-  
+
     switch (name) {
       case "aadharFile":
         setAdharfile(file);
-        
+
         if (file && !allowedFileTypes.includes(file.type)) {
-          setAdharFileSizeError('Please choose a PNG, JPG, or JPEG file.');
+          setAdharFileSizeError("Please choose a PNG, JPG, or JPEG file.");
           return;
         }
-      
+
         if (file && (file.size / 1024 < 20 || file.size / 1024 > 50)) {
           setAdharFileSizeError("File size should be between 20KB and 50KB.");
         } else {
@@ -225,8 +248,8 @@ const UserPersonalEdit = () => {
       case "panFile":
         setPanfile(file);
         if (file && !allowedFileTypes.includes(file.type)) {
-          setPanFileSizeError('Please choose a PNG, JPG, or JPEG file.');
-          return
+          setPanFileSizeError("Please choose a PNG, JPG, or JPEG file.");
+          return;
         }
         if (file && (file.size / 1024 < 20 || file.size / 1024 > 50)) {
           setPanFileSizeError("File size should be between 20KB and 50KB..");
@@ -237,11 +260,13 @@ const UserPersonalEdit = () => {
       case "passportFile":
         setPassportfile(file);
         if (file && !allowedFileTypes.includes(file.type)) {
-          setPassportFileSizeError('Please choose a PNG, JPG, or JPEG file.');
+          setPassportFileSizeError("Please choose a PNG, JPG, or JPEG file.");
           return;
         }
         if (file && (file.size / 1024 < 20 || file.size / 1024 > 50)) {
-          setPassportFileSizeError("File size should be between 20KB and 50KB..");
+          setPassportFileSizeError(
+            "File size should be between 20KB and 50KB.."
+          );
         } else {
           setPassportFileSizeError("");
         }
@@ -249,7 +274,7 @@ const UserPersonalEdit = () => {
       case "visaFile":
         setVisafile(file);
         if (file && !allowedFileTypes.includes(file.type)) {
-          setVisaFileSizeError('Please choose a PNG, JPG, or JPEG file.');
+          setVisaFileSizeError("Please choose a PNG, JPG, or JPEG file.");
           return;
         }
         if (file && (file.size / 1024 < 20 || file.size / 1024 > 50)) {
@@ -258,25 +283,25 @@ const UserPersonalEdit = () => {
           setVisaFileSizeError("");
         }
         break;
-        case "otherFile":
-          setOtherfile(file);
-          if (file && file.type !== "application/pdf") {
-            setOtherFileSizeError('Please choose a PDF file.');
-            return;
-          }
-          if (file && (file.size / 1024 < 20 || file.size / 1024 > 100)) {
-            setOtherFileSizeError("File size should be between 20KB and 100KB.");
-          } else {
-            setOtherFileSizeError("");
-          }
-          break;
-        
+      case "otherFile":
+        setOtherFile(file);
+        if (file && file.type !== "application/pdf") {
+          setOtherFileSizeError("Please choose a PDF file.");
+          return;
+        }
+        if (file && (file.size / 1024 < 20 || file.size / 1024 > 100)) {
+          setOtherFileSizeError("File size should be between 20KB and 100KB.");
+        } else {
+          setOtherFileSizeError("");
+        }
+        break;
+
       // Add more cases for other file inputs
       default:
         break;
     }
   };
-  
+
   const confirmEdit = (event) => {
     event.preventDefault();
     if (!Object.values(errors).some((error) => error !== "")) {
@@ -301,7 +326,7 @@ const UserPersonalEdit = () => {
       data1.append("panFile", panfile);
       data1.append("passportFile", passportfile);
       data1.append("visaFile", visfile);
-      data1.append("otherFile",otherFile)
+      data1.append("otherFile", otherFile);
       data1.append("email", formData.email);
       data1.append("aadhar", formData.adhar);
       data1.append("pan", formData.pan);
@@ -454,58 +479,60 @@ const UserPersonalEdit = () => {
                       <option value="no">No</option>
                     </select>
                   </td>
-                  {formData.val1==="yes"&&(
+                  {formData.val1 === "yes" && (
                     <>
-                  <td>
-                    <label>Passport Number</label>
-                  </td>
-                  <td>
-                    <input
-                      type="text"
-                      name="passportnumber"
-                      className="form-control"
-                      value={formData.passportnumber || ""}
-                      onChange={handleInputChange}
-                      required
-                    />
-                    <div className="text-danger">{errors.passportnumber}</div>
-                  </td>
-                  </>
+                      <td>
+                        <label>Passport Number</label>
+                      </td>
+                      <td>
+                        <input
+                          type="text"
+                          name="passportnumber"
+                          className="form-control"
+                          value={formData.passportnumber || ""}
+                          onChange={handleInputChange}
+                          required
+                        />
+                        <div className="text-danger">
+                          {errors.passportnumber}
+                        </div>
+                      </td>
+                    </>
                   )}
                 </tr>
 
                 <tr>
-                {formData.val1==="yes"&&(
-                  <>
-                  <td>
-                    <label>Passport Status</label>
-                  </td>
-                  <td>
-                    <input
-                      type="text"
-                      name="status1"
-                      className="form-control"
-                      value={formData.status1 || ""}
-                      onChange={handleInputChange}
-                      required
-                    />
-                    <div className="text-danger">{errors.status1}</div>
-                  </td>
-                  <td>
-                    <label>Passport Expiry Date</label>
-                  </td>
-                  <td>
-                    <input
-                      type="date"
-                      name="exp1"
-                      className="form-control"
-                      value={formData.exp1 || ""}
-                      onChange={handleInputChange}
-                      required
-                    />
-                    <div className="text-danger">{errors.exp1}</div>
-                  </td>
-                  </>
+                  {formData.val1 === "yes" && (
+                    <>
+                      <td>
+                        <label>Passport Status</label>
+                      </td>
+                      <td>
+                        <input
+                          type="text"
+                          name="status1"
+                          className="form-control"
+                          value={formData.status1 || ""}
+                          onChange={handleInputChange}
+                          required
+                        />
+                        <div className="text-danger">{errors.status1}</div>
+                      </td>
+                      <td>
+                        <label>Passport Expiry Date</label>
+                      </td>
+                      <td>
+                        <input
+                          type="date"
+                          name="exp1"
+                          className="form-control"
+                          value={formData.exp1 || ""}
+                          onChange={handleInputChange}
+                          required
+                        />
+                        <div className="text-danger">{errors.exp1}</div>
+                      </td>
+                    </>
                   )}
                   <td>
                     <label>Do you have a VISA? </label>
@@ -528,96 +555,109 @@ const UserPersonalEdit = () => {
                 </tr>
 
                 <tr>
-                {formData.val2==="yes"&&(
-                  <>
-                  <td>
-                    <label>VISA Number</label>
-                  </td>
-                  <td>
-                    <input
-                      type="text"
-                      name="visanumber"
-                      className="form-control"
-                      value={formData.visanumber || ""}
-                      onChange={handleInputChange}
-                      required
-                    />
-                    <div className="text-danger">{errors.visanumber}</div>
-                  </td>
-                  <td>
-                    <label>VISA Type</label>
-                  </td>
-                  <td>
-                    <input
-                      type="text"
-                      name="status2"
-                      className="form-control"
-                      value={formData.status2 || ""}
-                      onChange={handleInputChange}
-                      required
-                    />
-                    <div className="text-danger">{errors.status2}</div>
-                  </td>
-                  <td>
-                    <label>VISA Expiry Date </label>
-                  </td>
-                  <td>
-                    <input
-                      type="date"
-                      name="exp2"
-                      className="form-control"
-                      value={formData.exp2 || ""}
-                      onChange={handleInputChange}
-                      required
-                    />
-                    <div className="text-danger">{errors.exp2}</div>
-                  </td>
-                  </>
+                  {formData.val2 === "yes" && (
+                    <>
+                      <td>
+                        <label>VISA Number</label>
+                      </td>
+                      <td>
+                        <input
+                          type="text"
+                          name="visanumber"
+                          className="form-control"
+                          value={formData.visanumber || ""}
+                          onChange={handleInputChange}
+                          required
+                        />
+                        <div className="text-danger">{errors.visanumber}</div>
+                      </td>
+                      <td>
+                        <label>VISA Type</label>
+                      </td>
+                      <td>
+                        <input
+                          type="text"
+                          name="status2"
+                          className="form-control"
+                          value={formData.status2 || ""}
+                          onChange={handleInputChange}
+                          required
+                        />
+                        <div className="text-danger">{errors.status2}</div>
+                      </td>
+                      <td>
+                        <label>VISA Expiry Date </label>
+                      </td>
+                      <td>
+                        <input
+                          type="date"
+                          name="exp2"
+                          className="form-control"
+                          value={formData.exp2 || ""}
+                          onChange={handleInputChange}
+                          required
+                        />
+                        <div className="text-danger">{errors.exp2}</div>
+                      </td>
+                    </>
                   )}
                 </tr>
 
                 <tr>
+                  <td>
+                    <label>State </label>
+                  </td>
+                  <td>
+                    <select
+                      name="state"
+                      value={formData.state}
+                      onChange={handleInputChange}
+                      onFocus={handleInputChange}
+                      className="form-control"
+                      required
+                    >
+                      <option value="">Select State</option>
+                      {stateList.map((state, index) => (
+                        <option key={index} value={state.name}>
+                          {state.name}
+                        </option>
+                      ))}
+                    </select>
+                    <div className="text-danger">{errors.state}</div>
+                  </td>
+                  <td>
+                    <label>City</label>
+                  </td>
+                  <td>
+                    <select
+                      name="city"
+                      value={formData.city}
+                      onChange={handleInputChange}
+                      className="form-control"
+                      required
+                    >
+                      <option value="">Select City</option>
+                      {cityList.map((city, index) => (
+                        <option key={index} value={city.name}>
+                          {city.name}
+                        </option>
+                      ))}
+                    </select>
+                    <div className="text-danger">{errors.city}</div>
+                  </td>
                   <td>
                     <label>Address</label>
                   </td>
                   <td>
                     <input
                       type="text"
-                      name="adress"
+                      name="address"
                       className="form-control"
-                      value={formData.adress || ""}
+                      value={formData.address || ""}
                       onChange={handleInputChange}
                       required
                     />
                     <div className="text-danger">{errors.adress}</div>
-                  </td>
-                  <td>
-                    <label>City</label>
-                  </td>
-                  <td>
-                    <input
-                      type="text"
-                      name="city"
-                      className="form-control"
-                      value={formData.city || ""}
-                      onChange={handleInputChange}
-                      required
-                    />
-                    <div className="text-danger">{errors.city}</div>
-                  </td>
-                  <td>
-                    <label>State </label>
-                  </td>
-                  <td>
-                    <input
-                      type="text"
-                      name="state"
-                      className="form-control"
-                      value={formData.state || ""}
-                      onChange={handleInputChange}
-                      required
-                    />
-                    <div className="text-danger">{errors.state}</div>
                   </td>
                 </tr>
 
@@ -650,7 +690,6 @@ const UserPersonalEdit = () => {
                       name="aadharFile"
                       className="form-control"
                       onChange={handleFileChange}
-                      required
                     />
                     <div className="text-danger">{adharFileSizeError}</div>
                   </td>
@@ -661,24 +700,21 @@ const UserPersonalEdit = () => {
                       name="panFile"
                       className="form-control"
                       onChange={handleFileChange}
-                      required
                     />
                     <div className="text-danger">{panFileSizeError}</div>
                   </td>
+                  <td>Resume</td>
                   <td>
-                    Resume
+                    <input
+                      type="file"
+                      name="otherFile"
+                      onChange={handleFileChange}
+                      className="form-control"
+                    />
+                    {otherFileSizeError && (
+                      <div className="text-danger">{otherFileSizeError}</div>
+                    )}
                   </td>
-                  <td>
-                <input
-                    type="file"
-                    name="otherFile"
-                    onChange={handleFileChange}
-                    className="form-control" 
-                    required
-                  />
-                   {otherFileSizeError && <div className="text-danger">{otherFileSizeError}</div>}
-                </td>
-                
                 </tr>
                 <tr>
                   <td>Passport File</td>
@@ -688,9 +724,8 @@ const UserPersonalEdit = () => {
                       name="passportFile"
                       className="form-control"
                       onChange={handleFileChange}
-                      required
                     />
-                    <div className="text-danger">{panFileSizeError}</div>
+                    <div className="text-danger">{passportFileSizeError}</div>
                   </td>
                   <td>VISA File</td>
                   <td>
@@ -699,7 +734,6 @@ const UserPersonalEdit = () => {
                       name="visaFile"
                       className="form-control"
                       onChange={handleFileChange}
-                      required
                     />
                     <div className="text-danger">{visaFileSizeError}</div>
                   </td>
@@ -711,7 +745,6 @@ const UserPersonalEdit = () => {
               <button
                 type="submit"
                 className="btn btn-primary"
-                onClick={confirmEdit}
                 style={{ width: "150px" }}
               >
                 Save
