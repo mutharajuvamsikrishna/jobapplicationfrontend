@@ -35,7 +35,6 @@ import ViewAlldetails from "./ViewAlldetails";
 import AdminEdit from "./AdminEdit";
 import Piechart from "./PieChart";
 import Regsucess1 from "./Regsucess1";
-import UserEdit from "./UserEdit";
 import Profile from "./Profile";
 import ChangePassSuccess from "./ChangePassSuccess";
 import AdminPersonalView from "./AdminPersonalView";
@@ -98,10 +97,9 @@ function App() {
           <Route path="/viewalldetails" element={<ViewAlldetails />} />
           <Route path="/adminedit" element={<AdminEdit />} />
           <Route path="/piechart" element={<Piechart />} />
-          <Route path="/useredit" element={<UserEdit />} />
           <Route path="/profile" element={<Profile />} />
           <Route path="/adminpersonaledit" element={<AdminPersonalView />} />
-          <Route path="/ViewAllPersonal" element={<UserPersonalEdit />} />
+          <Route path="/personaledit" element={<UserPersonalEdit />} />
           <Route path="/loginfail" element={<AdminLoginInvalid />} />
           <Route path="/managejobid" element={<ManageOnieJob />} />
           <Route path="/personalview" element={<UserPersonalView />} />

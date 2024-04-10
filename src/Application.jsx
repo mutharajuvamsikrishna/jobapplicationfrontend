@@ -421,6 +421,31 @@ const Application = () => {
     if (name === "ctc1" && value=="") {
       return "required";
     }
+    let updatedFormData = { ...formData, [name]: value };
+    if (name === "val5" && value === "no") {
+      // Reset dependent fields to empty string
+    updatedFormData = {
+        ...updatedFormData,
+        coun: "",
+        citi: "",
+        onciti: "",
+        onciticli: ""
+      };
+      setFormData(updatedFormData);
+    }
+    if (name === "id12" && value === "no") {
+      // Reset dependent fields to empty string
+    updatedFormData = {
+        ...updatedFormData,
+        prevCompanyName1: "",
+        id11: "",
+        location1: "",
+        workedYears1: "",
+        prevFromDate1:"",
+        prevToDate1:"",
+      };
+      setFormData(updatedFormData);
+    }
     return "";
   };
  

@@ -4,7 +4,6 @@ import { useLocation, Link } from "react-router-dom";
 import "./ViweAll.css";
 //import { SlLogout } from "react-icons/Sl";
 import { SlLogout } from "react-icons/Sl";
-import { BsPersonFillAdd } from "react-icons/bs";
 import { getProfiles, getViewAddmore } from "./Services/Api";
 import { useNavigate } from "react-router-dom";
 const Profile = () => {
@@ -34,7 +33,7 @@ const Profile = () => {
       .catch((error) => {
         console.log(error);
         if (!localStorage.getItem("jwtToken")) {
-          navigate("/login");
+          navigate("/");
         }
       });
   };

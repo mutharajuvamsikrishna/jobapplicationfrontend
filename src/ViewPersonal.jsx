@@ -1,55 +1,49 @@
 import React, { useState, useEffect } from "react";
-import axios from "axios";
-import { useNavigate, useLocation, Link } from "react-router-dom";
-import { AiOutlineFullscreen, AiOutlineCompress } from "react-icons/ai";
-import { CgProfile } from "react-icons/cg";
+import { Link, useLocation, useNavigate } from "react-router-dom";
+import "./ViewPersonaldetails.css";
 import { getViewAddmore } from "./Services/Api";
-import "./ViweAll.css";
-const ViewProApplication = () => {
-  const [employees, setEmployees] = useState([]);
-  const navigate = useNavigate();
-  const [response, setResponse] = useState("");
+import { CgProfile } from 'react-icons/cg';
+const ViewPersonal = () => {
+  const [loading, setLoading] = useState(true);
   const location = useLocation();
-  const email1 = location.state.data.email;
+  const [fileContent, setFileContent] = useState([]);
   const email = location.state.data.email;
-
-  useEffect(() => {
-    fetchEmployees();
-  }, [email1]);
   const data = {
     email: email,
   };
-  const fetchEmployees = () => {
+  const navigate = useNavigate();
+
+  // State object to store form field values
+  const [formData, setFormData] = useState({});
+
+  useEffect(() => {
+    fetchPersonalData(email);
+  }, [email]);
+
+  const fetchPersonalData = (email) => {
+    //axios
+    //  .get(`http://localhost:1279/viewpersonal?email=${regno}`)
     getViewAddmore(email)
       .then((response) => {
-        setEmployees(response.data);
-      
+        setLoading(false);
+
+        // Set the initial values of form fields from employeeData
+        setFormData(response.data);
+        setFileContent(response.data.fileContents);
       })
       .catch((error) => {
         console.log(error);
+        setLoading(false);
       });
   };
-
-  const handleSubmit2 = (regno) => {
-    const data = {
-      regno: regno,
-    };
-    navigate("/editpersonal", { state: { data: data } });
-  };
-
-  const expand = (regno) => {
-    setResponse(regno);
-  };
-
-  const expand1 = (regno) => {
-    setResponse();
-  };
-  const handleSubmit3 = () => {
+  const handleSubmit2 = () => {
     navigate("/profile", { state: { data: data } });
   };
- 
   return (
-    <div className="id1">
+    <div
+      className=""
+      style={{ paddingLeft: "20px", paddingRight: "20px", paddingTop: "30px" }}
+    >
       <div
         style={{
           position: "absolute",
@@ -58,7 +52,7 @@ const ViewProApplication = () => {
           padding: "10px",
           cursor: "pointer",
         }}
-        onClick={handleSubmit3}
+        onClick={handleSubmit2}
       >
         <CgProfile
           style={{
@@ -68,152 +62,420 @@ const ViewProApplication = () => {
           }}
         />
       </div>
-      <br />
-      <br />
-      <br />
-      <br />
-
-      <h2 className="text-center">View Personal Details</h2>
-      <h3 className="text-center">No of Customers {employees.length}</h3>
-      <div className="row">
-        <table className="table table-striped table-bordered">
-          <thead>
-            <tr></tr>
-          </thead>
-          <tbody>
-            {employees.map((emp) => (
-              <React.Fragment key={emp.regno}>
+      <h2 className="text-center">Personal Details</h2>
+      <h3 className="text-center">Your Application ID is {formData.regno} </h3>
+      <div className="text-center">
+        {/* Render the form for editing data */}
+        {loading ? (
+          <p>Loading...</p>
+        ) : (
+          <form>
+            <table className="table table-striped table-bordered">
+              <tbody>
                 <tr>
-                  <th>Application ID</th>
-                  <td>{emp.regno}</td>
-                  <th>Name</th>
-                  <td>{emp.name}</td>
-                  <th>Mobile Number</th>
-                  <td>{emp.mob}</td>
+                  <td>
+                    <label>Date Of Birth</label>
+                  </td>
+                  <td>
+                    <input
+                      type="text"
+                      name="date"
+                      className="form-control"
+                      value={formData.date || ""}
+                      required
+                    />
+                  </td>
+                  <td>
+                    <label>Gender</label>
+                  </td>
+                  <td>
+                    <input
+                      type="text"
+                      className="form-control"
+                      value={formData.gender}
+                    />
+                  </td>
+                  <td>
+                    <label>Aadhar Card Number</label>
+                  </td>
+                  <td>
+                    <input
+                      type="text"
+                      name="adhar"
+                      className="form-control"
+                      value={formData.adhar || ""}
+                      required
+                    />
+                  </td>
                 </tr>
-                {response !== emp.regno && (
-                  <tr className="text-center">
-                    <td></td>
-
-                    <td>
-                      <AiOutlineFullscreen
-                        onClick={() => expand(emp.regno)}
-                        style={{
-                          height: "30px",
-                          width: "30px",
-                        }}
-                      />
-                    </td>
-                  </tr>
-                )}
 
                 <tr>
-                  <th>Email</th>
-                  <td>{emp.email}</td>
-
-                  <th>Gender</th>
-                  <td>{emp.gender}</td>
-                  <th>Date Of Birth</th>
-
-                  <td>{emp.date}</td>
-                </tr>
-                <br />
-                <br />
-                <br />
-                {response === emp.regno && (
-                  <>
-                    <tr className="text-center">
-                      <td></td>
-
+                  <td>
+                    <label>PAN Card Number</label>
+                  </td>
+                  <td>
+                    <input
+                      type="text"
+                      name="pan"
+                      className="form-control"
+                      value={formData.pan || ""}
+                      required
+                    />
+                  </td>
+                  {formData.val1 === "Yes" && (
+                    <>
                       <td>
-                        <AiOutlineCompress
-                          onClick={() => expand1(emp.mainemail)}
-                          style={{
-                            height: "30px",
-                            width: "30px",
-                          }}
+                        <label>Do you have a Passport?</label>
+                      </td>
+                      <td>
+                        <input
+                          type="text"
+                          className="form-control"
+                          value={formData.val1}
                         />
                       </td>
-                    </tr>
 
-                    <tr>
-                      <th>Aadhar Number</th>
-                      <td>{emp.adhar}</td>
-
-                      <th>Pan CardNumber</th>
-                      <td>{emp.pan}</td>
-                    </tr>
-
-                    <tr>
-                      <th> Do you have a Passport?</th>
-                      <td>{emp.val1}</td>
-                      <th> Passport Number</th>
-
-                      <td>{emp.passportnumber}</td>
-                      <th> Passport Status</th>
-                      <td>{emp.status1}</td>
-                    </tr>
-
-                    <tr>
-                      <th> Passport Expiry Date</th>
-                      <td>{emp.exp1}</td>
-                    </tr>
-
-                    <tr>
-                      <th> Do you have a VISA?</th>
-                      <td>{emp.val2}</td>
-                      <th> VisaNumber</th>
-
-                      <td>{emp.visanumber}</td>
-                      <th> VISA Type</th>
-                      <td>{emp.status2}</td>
-                    </tr>
-
-                    <tr>
-                      <th> VISA Expiry Date</th>
-                      <td>{emp.exp2}</td>
-                    </tr>
-                    <tr>
-                      <th> Address</th>
-                      <td>{emp.adress}</td>
-                      <th>City</th>
-                      <td>{emp.city}</td>
-                      <th>State</th>
-                      <td>{emp.state}</td>
-                    </tr>
-
-                    <tr>
-                      <td> Pin Code</td>
-                      <td>{emp.pinnumber}</td>
-                    </tr>
-
-                    <tr>
-                      <th>Edit</th>
                       <td>
-                        <button
-                          className="btn btn-primary"
-                          onClick={() => handleSubmit2(emp.regno)}
+                        <label>Passport Number</label>
+                      </td>
+                      <td>
+                        <input
+                          type="text"
+                          name="passportnumber"
+                          className="form-control"
+                          value={formData.passportnumber || ""}
+                          required
+                        />
+                      </td>
+                    </>
+                  )}
+                </tr>
+
+                <tr>
+                  {formData.val1 === "Yes" && (
+                    <>
+                      <td>
+                        <label>Passport Status</label>
+                      </td>
+                      <td>
+                        <input
+                          type="text"
+                          name="status1"
+                          className="form-control"
+                          value={formData.status1 || ""}
+                          required
+                        />
+                      </td>
+                      <td>
+                        <label>Passport Expiry Date</label>
+                      </td>
+                      <td>
+                        <input
+                          type="text"
+                          name="exp1"
+                          className="form-control"
+                          value={formData.exp1 || ""}
+                          required
+                        />
+                      </td>
+                    </>
+                  )}
+                  {formData.val2 === "Yes" && (
+                    <>
+                      <td>
+                        <label>Do you have a VISA? </label>
+                      </td>
+                      <td>
+                        <input
+                          type="text"
+                          className="form-control"
+                          value={formData.val2}
+                        />
+                      </td>
+                    </>
+                  )}
+                </tr>
+
+                <tr>
+                  {formData.val2 === "Yes" && (
+                    <>
+                      <td>
+                        <label>VISA Number</label>
+                      </td>
+                      <td>
+                        <input
+                          type="text"
+                          name="visanumber"
+                          className="form-control"
+                          value={formData.visanumber || ""}
+                          required
+                        />
+                      </td>
+                      <td>
+                        <label>VISA Type</label>
+                      </td>
+                      <td>
+                        <input
+                          type="text"
+                          name="status2"
+                          className="form-control"
+                          value={formData.status2 || ""}
+                          required
+                        />
+                      </td>
+                      <td>
+                        <label>VISA Expiry Date </label>
+                      </td>
+                      <td>
+                        <input
+                          type="text"
+                          name="exp2"
+                          className="form-control"
+                          value={formData.exp2 || ""}
+                          required
+                        />
+                      </td>
+                    </>
+                  )}
+                </tr>
+
+                <tr>
+                  <td>
+                    <label>Address</label>
+                  </td>
+                  <td>
+                    <input
+                      type="text"
+                      name="address"
+                      className="form-control"
+                      value={formData.address || ""}
+                      required
+                    />
+                  </td>
+                  <td>
+                    <label>City</label>
+                  </td>
+                  <td>
+                    <input
+                      type="text"
+                      name="city"
+                      className="form-control"
+                      value={formData.city || ""}
+                      required
+                    />
+                  </td>
+                  <td>
+                    <label>State </label>
+                  </td>
+                  <td>
+                    <input
+                      type="text"
+                      name="state"
+                      className="form-control"
+                      value={formData.state || ""}
+                      required
+                    />
+                  </td>
+                </tr>
+
+                <tr>
+                  <td>
+                    <label>PIN Code</label>
+                  </td>
+                  <td>
+                    <input
+                      type="text"
+                      name="pinnumber"
+                      className="form-control"
+                      value={formData.pinnumber || ""}
+                      required
+                    />
+                  </td>
+                </tr>
+                <tr>
+                  <td colSpan={6}>
+                    <h6>Upload Files</h6>
+                  </td>
+                </tr>
+                <tr>
+                  <td>Aadhar File</td>
+                  <td>
+                    <div>
+                      <img
+                        style={{ height: "150px", width: "150px" }}
+                        key={0}
+                        src={`data:image/png;base64,${fileContent[0]}`}
+                        alt={`Image ${fileContent[0] + 1}`}
+                      />
+                    </div>
+                  </td>
+                  <td>PAN File</td>
+                  <td>
+                    <div>
+                      <img
+                        style={{ height: "150px", width: "150px" }}
+                        key={1}
+                        src={`data:image/png;base64,${fileContent[1]}`}
+                        alt={`Image ${fileContent[1] + 1}`}
+                      />
+                    </div>
+                  </td>
+                  <td>Resume File</td>
+                  {fileContent[3] === undefined && (
+                    <td>
+                      <div>
+                        <object
+                          data={`data:application/pdf;base64,${fileContent[2]}`}
+                          type="application/pdf"
+                          width="150"
+                          height="150"
                         >
-                          Edit
-                        </button>
+                          <p>Your browser does not support embedded PDFs.</p>
+                        </object>
+                      </div>
+                    </td>
+                  )}
+                  {fileContent[3] !== undefined && (
+                    <td>
+                      <div>
+                        <object
+                          data={`data:application/pdf;base64,${fileContent[4]}`}
+                          type="application/pdf"
+                          width="150"
+                          height="150"
+                        >
+                          <p>Your browser does not support embedded PDFs.</p>
+                        </object>
+                      </div>
+                    </td>
+                  )}
+                </tr>
+                <tr>
+                  <td></td>
+                  <td>
+                    {/* Add a download link for the otherFile */}
+                    {fileContent[0] && (
+                      <a
+                        href={`data:image/png;base64,${fileContent[3]}`}
+                        download="adhar.png"
+                      >
+                        Download Aadhar
+                      </a>
+                    )}
+                  </td>
+                  <td></td>
+                  <td>
+                    {" "}
+                    {fileContent[1] && (
+                      <a
+                        href={`data:image/png;base64,${fileContent[1]}`}
+                        download="pan.png"
+                      >
+                        Download PAN
+                      </a>
+                    )}
+                  </td>
+                  <td></td>
+                  <td>
+                    <td>
+                      {fileContent[3] === undefined && (
+                        <a
+                          href={`data:application/pdf;base64,${fileContent[2]}`}
+                          download="resume.pdf"
+                        >
+                          Download Resume
+                        </a>
+                      )}
+                      {fileContent[3] !== undefined && (
+                        <a
+                          href={`data:application/pdf;base64,${fileContent[4]}`}
+                          download="resume.pdf"
+                        >
+                          Download Resume
+                        </a>
+                      )}
+                    </td>
+                  </td>
+                </tr>
+                {formData.val1 === "Yes" && (
+                  <>
+                    <tr>
+                      <td>Passport File</td>
+                      <td>
+                        <div>
+                          <img
+                            style={{ height: "150px", width: "150px" }}
+                            key={2}
+                            src={`data:image/png;base64,${fileContent[2]}`}
+                            alt={`Image ${fileContent[2] + 1}`}
+                          />
+                        </div>
+                      </td>
+
+                      <td>VISA File</td>
+                      <td>
+                        <div>
+                          <img
+                            style={{ height: "150px", width: "150px" }}
+                            key={3}
+                            src={`data:image/png;base64,${fileContent[3]}`}
+                            alt={`Image ${fileContent[3] + 1}`}
+                          />
+                        </div>
                       </td>
                     </tr>
-                    <br />
-                    <br />
-                    <br />
+                    <tr>
+                      <td></td>
+                      <td>
+                        {" "}
+                        {fileContent[2] && (
+                          <a
+                            href={`data:image/png;base64,${fileContent[2]}`}
+                            download="passport.png"
+                          >
+                            Download Passport
+                          </a>
+                        )}
+                      </td>
+                      <td></td>
+                      <td>
+                        {fileContent[3] && (
+                          <a
+                            href={`data:image/png;base64,${fileContent[3]}`}
+                            download="visa.png"
+                          >
+                            Download VISA
+                          </a>
+                        )}
+                      </td>
+                    </tr>
                   </>
                 )}
-              </React.Fragment>
-            ))}
-          </tbody>
-        </table>
-
-        <center>
-          <a href="javascript:history.go(-1)">Go Back</a>
-        </center>
+              </tbody>
+            </table>
+          </form>
+        )}
       </div>
+      <div
+        className="text-center"
+        style={{ paddingTop: "20px", paddingBottom: "20px" }}
+      >
+        <button
+          className="btn btn-primary"
+          onClick={() =>
+            navigate("/editpersonaldetails", { state: { data: data } })
+          }
+        >
+          Edit
+        </button>
+      </div>
+      <center>
+        <a href="javascript:history.go(-1)">Go Back</a>
+      </center>
+      <br />
+      <br />
     </div>
   );
 };
 
-export default ViewProApplication;
+export default ViewPersonal;

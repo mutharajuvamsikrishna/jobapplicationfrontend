@@ -1,370 +1,280 @@
 import React, { useState, useEffect } from "react";
-import { State, City } from "country-state-city";
-import { Link, useLocation, useNavigate } from "react-router-dom";
-import "./ViewProApplication.css"; // Import your custom CSS file
-import { CgProfile } from "react-icons/cg";
-import { getViewAddmore } from "./Services/Api";
-import { putUserAddmore } from "./Services/Api";
+import { useNavigate, useLocation } from "react-router-dom";
+import { useFormik } from "formik";
+import { putUserAddmore, getViewAddmore } from "./Services/Api";
+import { CgProfile } from 'react-icons/cg';
+import * as Yup from "yup";
+import "./PersonalDetailsEdit.css";
+import { Country, State, City } from "country-state-city";
 const UserPersonalEdit = () => {
-  // State variables
-  const [loading, setLoading] = useState(true);
+  const navigate = useNavigate(); // Import useNavigate
   const location = useLocation();
-  const [adharfile, setAdharfile] = useState(null);
-  const [panfile, setPanfile] = useState(null);
-  const [passportfile, setPassportfile] = useState(null);
-  const [visfile, setVisafile] = useState(null);
-  const [otherFile, setOtherFile] = useState(null);
-  const [adharFileSizeError, setAdharFileSizeError] = useState("");
-  const [panFileSizeError, setPanFileSizeError] = useState("");
-  const [passportFileSizeError, setPassportFileSizeError] = useState("");
-  const [visaFileSizeError, setVisaFileSizeError] = useState("");
-  const [otherFileSizeError, setOtherFileSizeError] = useState("");
+  const email = location.state.data.email;
   const [stateList, setStateList] = useState([]);
   const [cityList, setCityList] = useState([]);
-  const [stateCode, setStateCode] = useState("");
-  const email = location.state.data.email;
-  const data = {
-    email: email,
-  };
-  const navigate = useNavigate();
-
-  // State object to store form field values
-  const [formData, setFormData] = useState({});
-  const [errors, setErrors] = useState({
-    regno: "",
-    name: "",
-    mob: "",
-    adhar: "",
-    pan: "",
-    val1: "",
-    status1: "",
-    passportnumber: "",
-    exp1: "",
-    val2: "",
-    status2: "",
-    visanumber: "",
-    exp2: "",
-    date: "",
-    adress: "",
-    city: "",
-    state: "",
-    pinnumber: "",
-  });
   useEffect(() => {
-    fetchEmployeeData(email);
+    fetchPersonalData(email);
     fetchStates();
-}, [email]);
+  }, [email]);
 
-useEffect(() => {
-    if (stateList.length > 0 && formData.state) {
-        fetchCities();
-    }
-}, [stateList, formData.state]);
-
-const fetchStates = () => {
-    setStateList(State.getStatesOfCountry("IN"));
-};
-
-const fetchCities = () => {
-    const findState = stateList.find((sta) => sta.name === formData.state);
-    if (findState) {
-        const stateCode = findState.isoCode;
-        setStateCode(stateCode);
-        setCityList(City.getCitiesOfState("IN", stateCode));
-    }
-};
-
-  const fetchEmployeeData = (email) => {
-    //axios
-    //  .get(`http://localhost:1279/viewpersonal?email=${regno}`)
+  const fetchPersonalData = (email) => {
     getViewAddmore(email)
       .then((response) => {
-        setLoading(false);
-
-        // Set the initial values of form fields from employeeData
-        setFormData(response.data);
+        formik.setValues({
+          regno: response.data.regno || "",
+          email: response.data.email || "",
+          aadhar: response.data.adhar || "",
+          pan: response.data.pan || "",
+          val1: response.data.val1 || "",
+          status1: response.data.status1 || "",
+          passportnumber: response.data.passportnumber || "",
+          exp1: response.data.exp1 || "",
+          val2: response.data.val2 || "",
+          status2: response.data.status2 || "",
+          visanumber: response.data.visanumber || "",
+          exp2: response.data.exp2 || "",
+          gender: response.data.gender || "",
+          date: response.data.date || "",
+          address: response.data.address || "",
+          city: response.data.city || "",
+          state: response.data.state || "",
+          pinnumber: response.data.pinnumber || "",
+        });
       })
       .catch((error) => {
         console.log(error);
-        setLoading(false);
       });
   };
-  // Function to fetch Indian districts based on the selected state
-  const handleInputChange = (event) => {
-    const { name, value } = event.target;
-    setFormData({
-      ...formData,
-      [name]: value,
-    });
-    setErrors((prevErrors) => ({
-      ...prevErrors,
-      [name]: validateField(name, value),
+  const fetchStates = () => {
+    const states = State.getStatesOfCountry("IN").map((states) => ({
+      name: states.name,
+      isoCode: states.isoCode,
     }));
+    setStateList(states);
   };
-  const validateField = (name, value) => {
-    // Implement your validation logic here
-    // Return an error message if the field is not valid, otherwise return an empty string
-    if (name === "gender" && value === "") {
-      return "Please select Gender";
-    }
-    if (name === "date" && value === "") {
-      return "required";
-    }
-
-    if (name === "adhar" && value === "") {
-      return "Please select Aadhar Number";
-    }
-    if (name === "adhar") {
-      const aadharRegex = /^\d{12}$/;
-
-      if (!aadharRegex.test(value)) {
-        return "Aadhar Number 12 digits";
-      }
-    }
-    if (name === "pan" && value === "") {
-      return "Please select PanCard Number";
-    }
-    if (name === "pan") {
-      const panRegex = /^[A-Z]{5}[0-9]{4}[A-Z]$/;
-
-      if (!panRegex.test(value)) {
-        return "Invalid PAN Card Number";
-      }
-    }
-    if (name === "val1" && value === "") {
-      return "required";
-    }
-    if (name === "passportnumber" && value === "") {
-      return "Enter Passport Number";
-    }
-    if (name === "passportnumber") {
-      // Modify the regex according to your specific requirements
-      const passportRegex = /^[A-Za-z0-9]+$/;
-
-      if (!passportRegex.test(value)) {
-        return "Invalid Passport Number";
-      }
-    }
-    if (name === "status1" && value === "") {
-      return "Select Passport Status";
-    }
-    if (name === "exp1" && value === "") {
-      return "Select Passport Expiry Date";
-    }
-    //start
-    if (name === "val2" && value === "") {
-      return "required";
-    }
-    if (name === "visanumber" && value === "") {
-      return "Enter VISA Number";
-    }
-    if (name === "visanumber") {
-      // Modify the regex according to your specific requirements
-      const passportRegex = /^[A-Za-z0-9]+$/;
-
-      if (!passportRegex.test(value)) {
-        return "Invalid VISA Number";
-      }
-    }
-    if (name === "status2" && value === "") {
-      return "Select VISA Status";
-    }
-    if (name === "exp2" && value === "") {
-      return "Select VISA Expiry Date";
-    }
-    if (name === "val1" && value === "") {
-      return "required";
-    }
-    if (name === "passportnumber" && value === "") {
-      return "Enter Passport Number";
-    }
-    if (name === "passportnumber") {
-      // Modify the regex according to your specific requirements
-      const passportRegex = /^[A-Za-z0-9]+$/;
-
-      if (!passportRegex.test(value)) {
-        return "Invalid Passport Number";
-      }
-    }
-    if (name === "status1" && value === "") {
-      return "Select Passport Status";
-    }
-    if (name === "adress" && value === "") {
-      return "Select Address";
-    }
-    if (name === "adress") {
-      if (!/^[A-Za-z ]+$/.test(value)) {
-        return "Address Alphabets Only";
-      }
-    }
-    if (name === "city" && value === "") {
-      return "Select City";
-    }
-    if (name === "city") {
-      if (!/^[A-Za-z ]+$/.test(value)) {
-        return "City Alphabets Only";
-      }
-    }
-    if (name === "state" && value === "") {
-      return "Select State";
-    }
-    if (name === "state") {
-      if (!/^[A-Za-z ]+$/.test(value)) {
-        return "State Alphabets Only";
-      }
-    }
-    if (name === "pinnumber" && value === "") {
-      return "Select PIN Code";
-    }
-    if (name === "pinnumber") {
-      const pinRegex = /^\d{6}$/;
-
-      if (!pinRegex.test(value)) {
-        return "PIN Code 6 digits";
-      }
-    }
-    return "";
-  };
-  const allowedFileTypes = ["image/png", "image/jpeg", "image/jpg"];
-  const handleFileChange = (e) => {
-    const { name } = e.target;
-    const file = e.target.files[0];
-
-    switch (name) {
-      case "aadharFile":
-        setAdharfile(file);
-
-        if (file && !allowedFileTypes.includes(file.type)) {
-          setAdharFileSizeError("Please choose a PNG, JPG, or JPEG file.");
-          return;
-        }
-
-        if (file && (file.size / 1024 < 20 || file.size / 1024 > 50)) {
-          setAdharFileSizeError("File size should be between 20KB and 50KB.");
-        } else {
-          setAdharFileSizeError("");
-        }
-        break;
-      case "panFile":
-        setPanfile(file);
-        if (file && !allowedFileTypes.includes(file.type)) {
-          setPanFileSizeError("Please choose a PNG, JPG, or JPEG file.");
-          return;
-        }
-        if (file && (file.size / 1024 < 20 || file.size / 1024 > 50)) {
-          setPanFileSizeError("File size should be between 20KB and 50KB..");
-        } else {
-          setPanFileSizeError("");
-        }
-        break;
-      case "passportFile":
-        setPassportfile(file);
-        if (file && !allowedFileTypes.includes(file.type)) {
-          setPassportFileSizeError("Please choose a PNG, JPG, or JPEG file.");
-          return;
-        }
-        if (file && (file.size / 1024 < 20 || file.size / 1024 > 50)) {
-          setPassportFileSizeError(
-            "File size should be between 20KB and 50KB.."
-          );
-        } else {
-          setPassportFileSizeError("");
-        }
-        break;
-      case "visaFile":
-        setVisafile(file);
-        if (file && !allowedFileTypes.includes(file.type)) {
-          setVisaFileSizeError("Please choose a PNG, JPG, or JPEG file.");
-          return;
-        }
-        if (file && (file.size / 1024 < 20 || file.size / 1024 > 50)) {
-          setVisaFileSizeError("File size should be between 20KB and 50KB..");
-        } else {
-          setVisaFileSizeError("");
-        }
-        break;
-      case "otherFile":
-        setOtherFile(file);
-        if (file && file.type !== "application/pdf") {
-          setOtherFileSizeError("Please choose a PDF file.");
-          return;
-        }
-        if (file && (file.size / 1024 < 20 || file.size / 1024 > 100)) {
-          setOtherFileSizeError("File size should be between 20KB and 100KB.");
-        } else {
-          setOtherFileSizeError("");
-        }
-        break;
-
-      // Add more cases for other file inputs
-      default:
-        break;
+  const fetchCities = (selectedState) => {
+    const stateCode = stateList.find(
+      (state) => state.name === selectedState
+    )?.isoCode;
+    if (stateCode) {
+      const city = City.getCitiesOfState("IN", stateCode).map(
+        (city) => city.name
+      );
+      setCityList(city);
     }
   };
+  const formik = useFormik({
+    initialValues: {
+      email: "",
+      aadhar: "",
+      pan: "",
+      val1: "",
+      status1: "",
+      passportnumber: "",
+      exp1: "",
+      val2: "",
+      status2: "",
+      visanumber: "",
+      exp2: "",
+      gender: "",
+      date: "",
+      address: "",
+      city: "",
+      state: "",
+      pinnumber: "",
+      aadharFile: "",
+      panFile: "",
+      visaFile: "",
+      passportFile: "",
+      otherFile: "",
+    },
+    validationSchema: Yup.object().shape({
+      aadhar: Yup.string()
+        .matches(/^\d{12}$/, "Aadhar number must be a 12-digit numeric value")
+        .required("required"),
+      pan: Yup.string()
+        .matches(/^([A-Z]){5}([0-9]){4}([A-Z]){1}$/, "Invalid PAN Card number")
+        .required("required"),
+      val1: Yup.string().required("required"),
+      status1: Yup.string().when("val1", (val1, schema) => {
+        if (val1[0] === "Yes") {
+          return schema.required("required");
+        }
+        return schema;
+      }),
 
-  const confirmEdit = (event) => {
-    event.preventDefault();
-    if (!Object.values(errors).some((error) => error !== "")) {
-      if (window.confirm("Are you sure you want to Edit?")) {
-        handleSubmit1();
-      }
-    }
-  };
-  const handleSubmit1 = () => {
-    if (
-      adharFileSizeError ||
-      panFileSizeError ||
-      passportFileSizeError ||
-      visaFileSizeError
-    ) {
-      console.log("File size error. Form not submitted.");
-      return;
-    }
-    if (!Object.values(errors).some((error) => error !== "")) {
-      const data1 = new FormData();
-      data1.append("aadharFile", adharfile);
-      data1.append("panFile", panfile);
-      data1.append("passportFile", passportfile);
-      data1.append("visaFile", visfile);
-      data1.append("otherFile", otherFile);
-      data1.append("email", formData.email);
-      data1.append("aadhar", formData.adhar);
-      data1.append("pan", formData.pan);
-      data1.append("val1", formData.val1);
-      data1.append("status1", formData.status1);
-      data1.append("passportnumber", formData.passportnumber);
-      data1.append("exp1", formData.exp1);
-      data1.append("val2", formData.val2);
-      data1.append("status2", formData.status2);
-      data1.append("visanumber", formData.visanumber);
-      data1.append("exp2", formData.exp2);
-      data1.append("gender", formData.gender);
-      data1.append("date", formData.date);
-      data1.append("address", formData.adress);
-      data1.append("city", formData.city);
-      data1.append("state", formData.state);
-      data1.append("pinnumber", formData.pinnumber);
-      putUserAddmore(data1)
-        .then((response) => {
-          if ((response.status = 200)) {
-            navigate("/success", { state: { data: formData } }); // Use navigate to change the route
-          } else {
-            navigate("/regfail");
+      passportnumber: Yup.string().when("val1", (val1, schema) => {
+        if (val1[0] === "Yes") {
+          return schema.required("required");
+        }
+        return schema;
+      }),
+      exp1: Yup.string().when("val1", (val1, schema) => {
+        if (val1[0] === "Yes") {
+          return schema.required("required");
+        }
+        return schema;
+      }),
+      val2: Yup.string().when("val1", (val1, schema) => {
+        if (val1[0] === "Yes") {
+          return schema.required("required");
+        }
+        return schema;
+      }),
+      status2: Yup.string().when("val2", (val2, schema) => {
+        if (val2[0] === "Yes") {
+          return schema.required("required");
+        }
+        return schema;
+      }),
+      visanumber: Yup.string().when("val2", (val2, schema) => {
+        if (val2[0] === "Yes") {
+          return schema.required("required");
+        }
+        return schema;
+      }),
+      exp2: Yup.string().when("val2", (val2, schema) => {
+        if (val2[0] === "Yes") {
+          return schema.required("required");
+        }
+        return schema;
+      }),
+      gender: Yup.string().required("required"),
+      date: Yup.date().max(new Date(), "Invalid Date").required("required"),
+      address: Yup.string().required("required"),
+      city: Yup.string().required("required"),
+      state: Yup.string().required("required"),
+      pinnumber: Yup.string()
+        .matches(/^\d{6}$/, "PIN number must be a 6-digit numeric value")
+        .required("required"),
+      aadharFile: Yup.mixed()
+        .test(
+          "fileSize",
+          "File size is between 20kb and 50kb",
+          (value) =>
+            !value || (value && value.size <= 51200 && value.size >= 20480) // 20kb to 50kb in bytes
+        )
+        .test(
+          "fileType",
+          "Only JPG, JPEG, or PNG files are allowed",
+          (value) => {
+            if (!value) return true; // if no file is provided, validation passes
+            const acceptedFormats = ["image/jpeg", "image/jpg", "image/png"];
+            return acceptedFormats.includes(value.type);
           }
-        })
-        .catch((error) => {
-          // Handle errors here
-          console.error(error);
-        });
-    }
-  };
+        ),
+      panFile: Yup.mixed()
+        .test(
+          "fileSize",
+          "File size is between 20kb and 50kb",
+          (value) =>
+            !value || (value && value.size <= 51200 && value.size >= 20480) // 20kb to 50kb in bytes
+        )
+        .test(
+          "fileType",
+          "Only JPG, JPEG, or PNG files are allowed",
+          (value) => {
+            if (!value) return true; // if no file is provided, validation passes
+            const acceptedFormats = ["image/jpeg", "image/jpg", "image/png"];
+            return acceptedFormats.includes(value.type);
+          }
+        ),
+      otherFile: Yup.mixed()
+        .test(
+          "fileSize",
+          "File size is between 20kb and 50kb",
+          (value) =>
+            !value || (value && value.size <= 104857600 && value.size >= 20480) // 20KB to 100MB in bytes
+          // 20kb to 50kb in bytes
+        )
+        .test("fileType", "Only PDF files are allowed", (value) => {
+          if (!value) return true; // if no file is provided, validation passes
+          const acceptedFormats = ["application/pdf"];
+          return acceptedFormats.includes(value.type);
+        }),
+      passportFile: Yup.mixed().when("val1", (val1, schema) => {
+        if (val1[0] === "Yes") {
+          return schema
+            .test(
+              "fileType",
+              "Only JPG, JPEG, or PNG files are allowed",
+              (value) => {
+                if (!value) return true; // if no file is provided, validation passes
+                const acceptedFormats = [
+                  "image/jpeg",
+                  "image/jpg",
+                  "image/png",
+                ];
+                return acceptedFormats.includes(value.type);
+              }
+            )
+            .test(
+              "fileSize",
+              "File size is between 20kb and 50kb",
+              (value) =>
+                !value || (value && value.size <= 51200 && value.size >= 20480) // 20kb to 50kb in bytes
+            );
+        } else {
+          return schema; // Return the schema without any additional validation if val2 is not "Yes"
+        }
+      }),
 
+      visaFile: Yup.mixed().when("val2", (val2, schema) => {
+        if (val2[0] === "Yes") {
+          return schema
+            .test(
+              "fileType",
+              "Only JPG, JPEG, or PNG files are allowed",
+              (value) => {
+                if (!value) return true; // if no file is provided, validation passes
+                const acceptedFormats = [
+                  "image/jpeg",
+                  "image/jpg",
+                  "image/png",
+                ];
+                return acceptedFormats.includes(value.type);
+              }
+            )
+            .test(
+              "fileSize",
+              "File size is between 20kb and 50kb",
+              (value) =>
+                !value || (value && value.size <= 51200 && value.size >= 20480) // 20kb to 50kb in bytes
+            );
+        } else {
+          return schema; // Return the schema without any additional validation if val2 is not "Yes"
+        }
+      }),
+    }),
+    onSubmit: async (values) => {
+      try {
+        const confirmed = window.confirm(
+          "Are you sure you want to save the changes?"
+        );
+        if (!confirmed) {
+          return;
+        }
+        const formData = new FormData();
+        Object.entries(values).forEach(([key, value]) => {
+          formData.append(key, value);
+        });
+        const response = await putUserAddmore(formData);
+
+        if (response.status === 200 || response.status === 201) {
+          alert("Details Saved Sucess Fully");
+          window.location.reload();
+        }
+      } catch (error) {
+        console.error(error);
+      }
+    },
+  });
   const handleSubmit2 = () => {
     navigate("/profile", { state: { data: data } });
   };
-
+  console.log(formik.errors);
   return (
-    <div className="pad">
+    <div className="personaldetailsEdit">
       <div
         style={{
           position: "absolute",
@@ -383,384 +293,536 @@ const fetchCities = () => {
           }}
         />
       </div>
-      <br />
-      <br />
-      <br />
-      <br />
-      <h2 className="text-center">Edit Personal Details</h2>
-      <h3 className="text-center">Your Application ID is {formData.regno} </h3>
-      <div className="text-center">
-        {/* Render the form for editing data */}
-        {loading ? (
-          <p>Loading...</p>
-        ) : (
-          <form onSubmit={confirmEdit}>
-            <table className="table table-striped table-bordered">
-              <tbody>
-                <tr>
-                  <td>
-                    <label>Date Of Birth</label>
-                  </td>
-                  <td>
+      <div className="row g-3 justify-content-center align-items-center">
+        <h4 className="text-center text-primary">Personal Details</h4>
+        <div className="col-md-12 mb-2">
+          <form onSubmit={formik.handleSubmit} encType="multipart/form-data">
+            <div className="row">
+              <div className="col-md-4 mb-4">
+                <label>Gender</label>
+                <select
+                  name="gender"
+                  style={{ appearance: "auto" }}
+                  className={`border  form-control ${
+                    formik.touched.gender && formik.errors.gender
+                      ? "is-invalid"
+                      : ""
+                  }`}
+                  value={formik.values.gender}
+                  onChange={formik.handleChange}
+                  onBlur={formik.handleBlur}
+                  required
+                >
+                  <option value="">Select</option>
+                  <option value="Male">Male</option>
+                  <option value="Female">Female</option>
+                </select>
+                {formik.touched.gender && formik.errors.gender && (
+                  <div className="invalid-feedback">{formik.errors.gender}</div>
+                )}
+              </div>
+              <div className="col-md-4 mb-4">
+                <label>Date Of Birth</label>
+                <input
+                  type="date"
+                  name="date"
+                  value={formik.values.date} // Using formik.values.date as the value
+                  onChange={formik.handleChange}
+                  onFocus={formik.handleBlur} // Assuming onFocus should be formik.handleBlur
+                  className={`border form-control ${
+                    formik.touched.date && formik.errors.date
+                      ? "is-invalid"
+                      : ""
+                  }`}
+                  required
+                  id="dateOfBirth"
+                  autoComplete="date"
+                />
+                {formik.touched.date && formik.errors.date && (
+                  <div className="invalid-feedback">{formik.errors.date}</div>
+                )}
+              </div>
+              <div className="col-md-4 mb-4">
+                <label>Aadhar Number</label>
+                <input
+                  type="text"
+                  placeholder="Enter Aadhar Number"
+                  name="aadhar"
+                  value={formik.values.aadhar} // Using formik.values.aadhar as the value
+                  onChange={formik.handleChange}
+                  onFocus={formik.handleBlur} // Assuming onFocus should be formik.handleBlur
+                  className={`border form-control ${
+                    formik.touched.aadhar && formik.errors.aadhar
+                      ? "is-invalid"
+                      : ""
+                  }`}
+                  required
+                  id="aadharNumber"
+                  autoComplete="aadhar-number"
+                />
+                {formik.touched.aadhar && formik.errors.aadhar && (
+                  <div className="invalid-feedback">{formik.errors.aadhar}</div>
+                )}
+              </div>
+              <div className="col-md-4 mb-4">
+                <label>PAN Card Number</label>
+                <input
+                  type="text"
+                  placeholder="Enter PAN Number"
+                  name="pan"
+                  value={formik.values.pan}
+                  onChange={formik.handleChange}
+                  onBlur={formik.handleBlur}
+                  className={`border form-control ${
+                    formik.touched.pan && formik.errors.pan ? "is-invalid" : ""
+                  }`}
+                  required
+                  id="pan"
+                  autoComplete="pan-number"
+                />
+                {formik.touched.pan && formik.errors.pan && (
+                  <div className="invalid-feedback">{formik.errors.pan}</div>
+                )}
+              </div>
+              <div className="col-md-4 mb-4">
+                <label>Do you Have Passport?</label>
+                <select
+                  name="val1"
+                  style={{ appearance: "auto" }}
+                  className={`border  form-control ${
+                    formik.touched.val1 && formik.errors.val1
+                      ? "is-invalid"
+                      : ""
+                  }`}
+                  value={formik.values.val1}
+                  onChange={formik.handleChange}
+                  onBlur={formik.handleBlur}
+                  required
+                >
+                  <option value="">Select</option>
+                  <option value="Yes">Yes</option>
+                  <option value="No">No</option>
+                </select>
+                {formik.touched.val1 && formik.errors.val1 && (
+                  <div className="invalid-feedback">{formik.errors.val1}</div>
+                )}
+              </div>
+              {formik.values.val1 === "Yes" && (
+                <>
+                  <div className="col-md-4 mb-4">
+                    <label htmlFor="passportnumber">Passport Number</label>
+                    <input
+                      type="text"
+                      name="passportnumber"
+                      placeholder="Enter Passport Number"
+                      value={formik.values.passportnumber}
+                      onChange={formik.handleChange}
+                      onBlur={formik.handleBlur}
+                      className={`border form-control ${
+                        formik.touched.passportnumber &&
+                        formik.errors.passportnumber
+                          ? "is-invalid"
+                          : ""
+                      }`}
+                      required
+                      id="passportnumber"
+                      autoComplete="passport-number"
+                    />
+                    {formik.touched.passportnumber &&
+                      formik.errors.passportnumber && (
+                        <div className="invalid-feedback">
+                          {formik.errors.passportnumber}
+                        </div>
+                      )}
+                  </div>
+                  <div className="col-md-4 mb-4">
+                    <label htmlFor="status1">Passport Status</label>
+                    <input
+                      type="text"
+                      name="status1"
+                      placeholder="Enter Passport Status"
+                      value={formik.values.status1}
+                      onChange={formik.handleChange}
+                      onBlur={formik.handleBlur}
+                      className={`border form-control ${
+                        formik.touched.status1 && formik.errors.status1
+                          ? "is-invalid"
+                          : ""
+                      }`}
+                      required
+                      id="status1"
+                      autoComplete="status1"
+                    />
+                    {formik.touched.status1 && formik.errors.status1 && (
+                      <div className="invalid-feedback">
+                        {formik.errors.status1}
+                      </div>
+                    )}
+                  </div>
+                  <div className="col-md-4 mb-4">
+                    <label htmlFor="exp1">Passport Expiry Date</label>
                     <input
                       type="date"
-                      name="date"
-                      className="form-control"
-                      value={formData.date || ""}
-                      onChange={handleInputChange}
+                      name="exp1"
+                      value={formik.values.exp1}
+                      onChange={formik.handleChange}
+                      onBlur={formik.handleBlur}
+                      className={`border form-control ${
+                        formik.touched.exp1 && formik.errors.exp1
+                          ? "is-invalid"
+                          : ""
+                      }`}
                       required
+                      id="exp1"
+                      autoComplete="exp1"
                     />
-                    <div className="text-danger">{errors.date}</div>
-                  </td>
-                  <td>
-                    <label>Gender</label>
-                  </td>
-                  <td>
-                    <select
-                      id="notice"
-                      name="gender"
-                      className="form-control"
-                      style={{
-                        color: "green",
-                        appearance: "auto",
-                      }}
-                      value={formData.gender}
-                      onChange={handleInputChange}
-                    >
-                      <option value="male">Male</option>
-                      <option value="female">Female</option>
-                    </select>
-                  </td>
-                  <td>
-                    <label>Aadhar Card Number</label>
-                  </td>
-                  <td>
-                    <input
-                      type="text"
-                      name="adhar"
-                      className="form-control"
-                      value={formData.adhar || ""}
-                      onChange={handleInputChange}
-                      required
-                    />
-                    <div className="text-danger">{errors.adhar}</div>
-                  </td>
-                </tr>
-
-                <tr>
-                  <td>
-                    <label>PAN Card Number</label>
-                  </td>
-                  <td>
-                    <input
-                      type="text"
-                      name="pan"
-                      className="form-control"
-                      value={formData.pan || ""}
-                      onChange={handleInputChange}
-                      required
-                    />
-                    <div className="text-danger">{errors.pan}</div>
-                  </td>
-                  <td>
-                    <label>Do you have a Passport?</label>
-                  </td>
-                  <td>
-                    <select
-                      id="id"
-                      name="val1"
-                      style={{ color: "green", appearance: "auto" }}
-                      value={formData.val1}
-                      onChange={handleInputChange}
-                      className="form-control"
-                      required
-                    >
-                      <option value="yes">Yes</option>
-                      <option value="no">No</option>
-                    </select>
-                  </td>
-                  {formData.val1 === "yes" && (
-                    <>
-                      <td>
-                        <label>Passport Number</label>
-                      </td>
-                      <td>
-                        <input
-                          type="text"
-                          name="passportnumber"
-                          className="form-control"
-                          value={formData.passportnumber || ""}
-                          onChange={handleInputChange}
-                          required
-                        />
-                        <div className="text-danger">
-                          {errors.passportnumber}
-                        </div>
-                      </td>
-                    </>
-                  )}
-                </tr>
-
-                <tr>
-                  {formData.val1 === "yes" && (
-                    <>
-                      <td>
-                        <label>Passport Status</label>
-                      </td>
-                      <td>
-                        <input
-                          type="text"
-                          name="status1"
-                          className="form-control"
-                          value={formData.status1 || ""}
-                          onChange={handleInputChange}
-                          required
-                        />
-                        <div className="text-danger">{errors.status1}</div>
-                      </td>
-                      <td>
-                        <label>Passport Expiry Date</label>
-                      </td>
-                      <td>
-                        <input
-                          type="date"
-                          name="exp1"
-                          className="form-control"
-                          value={formData.exp1 || ""}
-                          onChange={handleInputChange}
-                          required
-                        />
-                        <div className="text-danger">{errors.exp1}</div>
-                      </td>
-                    </>
-                  )}
-                  <td>
-                    <label>Do you have a VISA? </label>
-                  </td>
-                  <td>
-                    <select
-                      id="prev"
-                      name="val2"
-                      style={{ color: "green", appearance: "auto" }}
-                      value={formData.val2}
-                      onChange={handleInputChange}
-                      onFocus={handleInputChange}
-                      className="form-control"
-                      required
-                    >
-                      <option value="yes">Yes</option>
-                      <option value="no">No</option>
-                    </select>
-                  </td>
-                </tr>
-
-                <tr>
-                  {formData.val2 === "yes" && (
-                    <>
-                      <td>
-                        <label>VISA Number</label>
-                      </td>
-                      <td>
-                        <input
-                          type="text"
-                          name="visanumber"
-                          className="form-control"
-                          value={formData.visanumber || ""}
-                          onChange={handleInputChange}
-                          required
-                        />
-                        <div className="text-danger">{errors.visanumber}</div>
-                      </td>
-                      <td>
-                        <label>VISA Type</label>
-                      </td>
-                      <td>
-                        <input
-                          type="text"
-                          name="status2"
-                          className="form-control"
-                          value={formData.status2 || ""}
-                          onChange={handleInputChange}
-                          required
-                        />
-                        <div className="text-danger">{errors.status2}</div>
-                      </td>
-                      <td>
-                        <label>VISA Expiry Date </label>
-                      </td>
-                      <td>
-                        <input
-                          type="date"
-                          name="exp2"
-                          className="form-control"
-                          value={formData.exp2 || ""}
-                          onChange={handleInputChange}
-                          required
-                        />
-                        <div className="text-danger">{errors.exp2}</div>
-                      </td>
-                    </>
-                  )}
-                </tr>
-
-                <tr>
-                  <td>
-                    <label>State </label>
-                  </td>
-                  <td>
-                    <select
-                      name="state"
-                      value={formData.state}
-                      onChange={handleInputChange}
-                      onFocus={handleInputChange}
-                      className="form-control"
-                      required
-                    >
-                      <option value="">Select State</option>
-                      {stateList.map((state, index) => (
-                        <option key={index} value={state.name}>
-                          {state.name}
-                        </option>
-                      ))}
-                    </select>
-                    <div className="text-danger">{errors.state}</div>
-                  </td>
-                  <td>
-                    <label>City</label>
-                  </td>
-                  <td>
-                    <select
-                      name="city"
-                      value={formData.city}
-                      onChange={handleInputChange}
-                      className="form-control"
-                      required
-                    >
-                      <option value="">Select City</option>
-                      {cityList.map((city, index) => (
-                        <option key={index} value={city.name}>
-                          {city.name}
-                        </option>
-                      ))}
-                    </select>
-                    <div className="text-danger">{errors.city}</div>
-                  </td>
-                  <td>
-                    <label>Address</label>
-                  </td>
-                  <td>
-                    <input
-                      type="text"
-                      name="address"
-                      className="form-control"
-                      value={formData.address || ""}
-                      onChange={handleInputChange}
-                      required
-                    />
-                    <div className="text-danger">{errors.adress}</div>
-                  </td>
-                </tr>
-
-                <tr>
-                  <td>
-                    <label>PIN Code</label>
-                  </td>
-                  <td>
-                    <input
-                      type="text"
-                      name="pinnumber"
-                      className="form-control"
-                      value={formData.pinnumber || ""}
-                      onChange={handleInputChange}
-                      required
-                    />
-                    <div className="text-danger">{errors.pinnumber}</div>
-                  </td>
-                </tr>
-                <tr>
-                  <td colSpan={6}>
-                    <h6>Upload Files</h6>
-                  </td>
-                </tr>
-                <tr>
-                  <td>Aadhar File</td>
-                  <td>
-                    <input
-                      type="file"
-                      name="aadharFile"
-                      className="form-control"
-                      onChange={handleFileChange}
-                    />
-                    <div className="text-danger">{adharFileSizeError}</div>
-                  </td>
-                  <td>PAN File</td>
-                  <td>
-                    <input
-                      type="file"
-                      name="panFile"
-                      className="form-control"
-                      onChange={handleFileChange}
-                    />
-                    <div className="text-danger">{panFileSizeError}</div>
-                  </td>
-                  <td>Resume</td>
-                  <td>
-                    <input
-                      type="file"
-                      name="otherFile"
-                      onChange={handleFileChange}
-                      className="form-control"
-                    />
-                    {otherFileSizeError && (
-                      <div className="text-danger">{otherFileSizeError}</div>
+                    {formik.touched.exp1 && formik.errors.exp1 && (
+                      <div className="invalid-feedback">
+                        {formik.errors.exp1}
+                      </div>
                     )}
-                  </td>
-                </tr>
-                <tr>
-                  <td>Passport File</td>
-                  <td>
+                  </div>
+                  <div className="col-md-4 mb-4">
+                    <label htmlFor="passportFile">Passport File</label>
                     <input
                       type="file"
                       name="passportFile"
-                      className="form-control"
-                      onChange={handleFileChange}
+                      onChange={(event) => {
+                        formik.setFieldValue(
+                          "passportFile",
+                          event.currentTarget.files[0]
+                        );
+                      }}
+                      onBlur={formik.handleBlur}
+                      className={`form-control ${
+                        formik.touched.passportFile &&
+                        formik.errors.passportFile
+                          ? "is-invalid"
+                          : ""
+                      }`}
                     />
-                    <div className="text-danger">{passportFileSizeError}</div>
-                  </td>
-                  <td>VISA File</td>
-                  <td>
-                    <input
-                      type="file"
-                      name="visaFile"
-                      className="form-control"
-                      onChange={handleFileChange}
-                    />
-                    <div className="text-danger">{visaFileSizeError}</div>
-                  </td>
-                </tr>
-              </tbody>
-            </table>
+                    {formik.touched.passportFile &&
+                      formik.errors.passportFile && (
+                        <div className="invalid-feedback">
+                          {formik.errors.passportFile}
+                        </div>
+                      )}
+                  </div>
+                  <div className="col-md-4 mb-4">
+                    <label htmlFor="prev">Do you have a VISA?</label>
+                    <select
+                      id="prev"
+                      name="val2"
+                      style={{ appearance: "auto" }}
+                      value={formik.values.val2}
+                      onChange={formik.handleChange}
+                      onBlur={formik.handleBlur}
+                      className={`form-control ${
+                        formik.touched.val2 && formik.errors.val2
+                          ? "is-invalid"
+                          : ""
+                      }`}
+                      required
+                    >
+                      <option value="">Select</option>
+                      <option value="Yes">Yes</option>
+                      <option value="No">No</option>
+                    </select>
+                    {formik.touched.val2 && formik.errors.val2 && (
+                      <div className="invalid-feedback">
+                        {formik.errors.val2}
+                      </div>
+                    )}
+                  </div>
+                  {formik.values.val2 === "Yes" && (
+                    <>
+                      <div className="col-md-4 mb-4">
+                        <label htmlFor="languages">Visa Number</label>
+                        <input
+                          type="text"
+                          placeholder="Enter Visa Number"
+                          name="visanumber"
+                          value={formik.values.visanumber}
+                          onChange={formik.handleChange}
+                          onBlur={formik.handleBlur}
+                          className={`form-control ${
+                            formik.touched.visanumber &&
+                            formik.errors.visanumber
+                              ? "is-invalid"
+                              : ""
+                          }`}
+                          required
+                          autoComplete="visanumber"
+                        />
+                        {formik.touched.visanumber &&
+                          formik.errors.visanumber && (
+                            <div className="invalid-feedback">
+                              {formik.errors.visanumber}
+                            </div>
+                          )}
+                      </div>
+                      <div className="col-md-4 mb-4">
+                        <label htmlFor="visaType">VISA Type</label>
+                        <input
+                          type="text"
+                          placeholder="Enter Visa Type"
+                          name="status2"
+                          value={formik.values.status2}
+                          onChange={formik.handleChange}
+                          onBlur={formik.handleBlur}
+                          className={`form-control ${
+                            formik.touched.status2 && formik.errors.status2
+                              ? "is-invalid"
+                              : ""
+                          }`}
+                          required
+                        />
+                        {formik.touched.status2 && formik.errors.status2 && (
+                          <div className="invalid-feedback">
+                            {formik.errors.status2}
+                          </div>
+                        )}
+                      </div>
+                      <div className="col-md-4 mb-4">
+                        <label htmlFor="visaExpiryDate">VISA Expiry Date</label>
+                        <input
+                          type="date"
+                          name="exp2"
+                          value={formik.values.exp2}
+                          onChange={formik.handleChange}
+                          onBlur={formik.handleBlur}
+                          className={`form-control ${
+                            formik.touched.exp2 && formik.errors.exp2
+                              ? "is-invalid"
+                              : ""
+                          }`}
+                        />
+                        {formik.touched.exp2 && formik.errors.exp2 && (
+                          <div className="invalid-feedback">
+                            {formik.errors.exp2}
+                          </div>
+                        )}
+                      </div>
+                      <div className="col-md-4 mb-4">
+                        <label htmlFor="visaFile">VISA File</label>
+                        <input
+                          type="file"
+                          name="visaFile"
+                          onChange={(event) => {
+                            formik.setFieldValue(
+                              "visaFile",
+                              event.currentTarget.files[0]
+                            );
+                          }}
+                          onBlur={formik.handleBlur}
+                          className={`form-control ${
+                            formik.touched.visaFile && formik.errors.visaFile
+                              ? "is-invalid"
+                              : ""
+                          }`}
+                        />
+                        {formik.touched.visaFile && formik.errors.visaFile && (
+                          <div className="invalid-feedback">
+                            {formik.errors.visaFile}
+                          </div>
+                        )}
+                      </div>
+                    </>
+                  )}
+                </>
+              )}
+              <div className="col-md-4 mb-4">
+                <label htmlFor="state">State</label>
+                <select
+                  name="state"
+                  id="state"
+                  className={`border form-control ${
+                    formik.touched.state && formik.errors.state
+                      ? "is-invalid"
+                      : ""
+                  }`}
+                  value={formik.values.state}
+                  style={{ appearance: "auto" }}
+                  onChange={(event) => {
+                    formik.handleChange(event);
+                    fetchCities(event.target.value); // Fetch cities when state changes
+                  }}
+                  onBlur={formik.handleBlur}
+                  required
+                >
+                  <option value="">Select a state</option>
+                  {stateList.map((state, index) => (
+                    <option key={index} value={state.name}>
+                      {state.name}
+                    </option>
+                  ))}
+                </select>
+                {formik.touched.state && formik.errors.state && (
+                  <div className="invalid-feedback">{formik.errors.state}</div>
+                )}
+              </div>
 
-            <center>
-              <button
-                type="submit"
-                className="btn btn-primary"
-                style={{ width: "150px" }}
-              >
-                Save
+              <div className="col-md-4 mb-4">
+                <label htmlFor="city">City</label>
+                <select
+                  name="city"
+                  style={{ appearance: "auto" }}
+                  id="city"
+                  className={`border form-control ${
+                    formik.touched.city && formik.errors.city
+                      ? "is-invalid"
+                      : ""
+                  }`}
+                  value={formik.values.city}
+                  onChange={formik.handleChange}
+                  onBlur={formik.handleBlur}
+                  required
+                >
+                  <option value={formik.values.city}>
+                    {formik.values.city}
+                  </option>
+                  {cityList.map((city, index) => (
+                    <option key={index} value={city}>
+                      {city}
+                    </option>
+                  ))}
+                </select>
+                {formik.touched.city && formik.errors.city && (
+                  <div className="invalid-feedback">{formik.errors.city}</div>
+                )}
+              </div>
+              <div className="col-md-4 mb-4">
+                <label htmlFor="address">Address</label>
+                <input
+                  type="text"
+                  placeholder="Enter Address"
+                  name="address"
+                  value={formik.values.address}
+                  onChange={formik.handleChange}
+                  onBlur={formik.handleBlur}
+                  className={`form-control ${
+                    formik.touched.address && formik.errors.address
+                      ? "is-invalid"
+                      : ""
+                  }`}
+                  required
+                  autoComplete="address"
+                />
+                {formik.touched.address && formik.errors.address && (
+                  <div className="invalid-feedback">
+                    {formik.errors.address}
+                  </div>
+                )}
+              </div>
+              <div className="col-md-4 mb-4">
+                <label htmlFor="pinnumber">PIN Code</label>
+                <input
+                  type="text"
+                  placeholder="Enter Pin Code"
+                  name="pinnumber"
+                  value={formik.values.pinnumber}
+                  onChange={formik.handleChange}
+                  onBlur={formik.handleBlur}
+                  className={`form-control ${
+                    formik.touched.pinnumber && formik.errors.pinnumber
+                      ? "is-invalid"
+                      : ""
+                  }`}
+                  required
+                />
+                {formik.touched.pinnumber && formik.errors.pinnumber && (
+                  <div className="invalid-feedback">
+                    {formik.errors.pinnumber}
+                  </div>
+                )}
+              </div>
+              <div className="col-md-4 mb-4">
+                <label htmlFor="aadharFile">Aadhar File</label>
+                <input
+                  type="file"
+                  name="aadharFile"
+                  onChange={(event) => {
+                    formik.setFieldValue(
+                      "aadharFile",
+                      event.currentTarget.files[0]
+                    );
+                  }}
+                  onBlur={formik.handleBlur}
+                  className={`form-control ${
+                    formik.touched.aadharFile && formik.errors.aadharFile
+                      ? "is-invalid"
+                      : ""
+                  }`}
+                />
+                {formik.touched.aadharFile && formik.errors.aadharFile && (
+                  <div className="invalid-feedback">
+                    {formik.errors.aadharFile}
+                  </div>
+                )}
+              </div>
+              <div className="col-md-4 mb-4">
+                <label htmlFor="panFile">PAN File</label>
+                <input
+                  type="file"
+                  name="panFile"
+                  onChange={(event) => {
+                    formik.setFieldValue(
+                      "panFile",
+                      event.currentTarget.files[0]
+                    );
+                  }}
+                  onBlur={formik.handleBlur}
+                  className={`form-control ${
+                    formik.touched.panFile && formik.errors.panFile
+                      ? "is-invalid"
+                      : ""
+                  }`}
+                />
+                {formik.touched.panFile && formik.errors.panFile && (
+                  <div className="invalid-feedback">
+                    {formik.errors.panFile}
+                  </div>
+                )}
+              </div>
+              <div className="col-md-4 mb-4">
+                <label htmlFor="otherFile">Resume</label>
+                <input
+                  type="file"
+                  name="otherFile"
+                  onChange={(event) => {
+                    formik.setFieldValue(
+                      "otherFile",
+                      event.currentTarget.files[0]
+                    );
+                  }}
+                  onBlur={formik.handleBlur}
+                  className={`form-control ${
+                    formik.touched.otherFile && formik.errors.otherFile
+                      ? "is-invalid"
+                      : ""
+                  }`}
+                />
+                {formik.touched.otherFile && formik.errors.otherFile && (
+                  <div className="invalid-feedback">
+                    {formik.errors.otherFile}
+                  </div>
+                )}
+              </div>
+            </div>
+            <div className="text-center">
+              <button type="submit" className="btn btn-primary">
+                Submit
               </button>
-            </center>
+            </div>
           </form>
-        )}
-        <br />
-        <br />
+        </div>
       </div>
-
-      <center>
+      <div
+        className="text-center"
+        style={{ paddingTop: "30px", paddingBottom: "20px" }}
+      >
         <a href="javascript:history.go(-1)">Go Back</a>
-      </center>
-      <br />
-      <br />
+      </div>
     </div>
   );
 };
