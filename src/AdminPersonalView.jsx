@@ -1,27 +1,24 @@
 import React, { useState, useEffect } from "react";
-import axios from "axios";
 import { Link, useLocation, useNavigate } from "react-router-dom";
-import "./ViewProApplication.css"; // Import your custom CSS file
-import { CgProfile } from "react-icons/cg";
+import "./ViewPersonaldetails.css";
 import { getViewAddmore } from "./Services/Api";
-const AdminPersonalView = () => {
+import { CgProfile } from "react-icons/cg";
+const UserPersonalView = () => {
   const [loading, setLoading] = useState(true);
   const location = useLocation();
-  const [fileContent,setFileContent]=useState([]);
+  const [fileContent, setFileContent] = useState([]);
   const email = location.state.data.email;
   const data = {
     email: email,
   };
   const navigate = useNavigate();
-
-  // State object to store form field values
   const [formData, setFormData] = useState({});
 
   useEffect(() => {
-    fetchEmployeeData(email);
+    fetchPersonalData(email);
   }, [email]);
 
-  const fetchEmployeeData = (email) => {
+  const fetchPersonalData = (email) => {
     //axios
     //  .get(`http://localhost:1279/viewpersonal?email=${regno}`)
     getViewAddmore(email)
@@ -40,12 +37,11 @@ const AdminPersonalView = () => {
   const handleSubmit2 = () => {
     navigate("/profile", { state: { data: data } });
   };
-  
-const handleSubmit5=()=>{
-   navigate("/ViewAllPersonal",{state:{data:data}})
-}
   return (
-    <div className="pad">
+    <div
+      className=""
+      style={{ paddingLeft: "20px", paddingRight: "20px", paddingTop: "30px" }}
+    >
       <div
         style={{
           position: "absolute",
@@ -64,12 +60,7 @@ const handleSubmit5=()=>{
           }}
         />
       </div>
-      <br />
-      <br />
-      <br />
-      <br />
       <h2 className="text-center">Personal Details</h2>
-      <h3 className="text-center">Your Application ID is {formData.regno} </h3>
       <div className="text-center">
         {/* Render the form for editing data */}
         {loading ? (
@@ -128,7 +119,7 @@ const handleSubmit5=()=>{
                       required
                     />
                   </td>
-                  {formData.val1 === "yes" && (
+                  {formData.val1 === "Yes" && (
                     <>
                       <td>
                         <label>Do you have a Passport?</label>
@@ -158,7 +149,7 @@ const handleSubmit5=()=>{
                 </tr>
 
                 <tr>
-                  {formData.val1 === "yes" && (
+                  {formData.val1 === "Yes" && (
                     <>
                       <td>
                         <label>Passport Status</label>
@@ -186,7 +177,7 @@ const handleSubmit5=()=>{
                       </td>
                     </>
                   )}
-                  {formData.val2 === "yes" && (
+                  {formData.val2 === "Yes" && (
                     <>
                       <td>
                         <label>Do you have a VISA? </label>
@@ -203,7 +194,7 @@ const handleSubmit5=()=>{
                 </tr>
 
                 <tr>
-                  {formData.val2 === "yes" && (
+                  {formData.val2 === "Yes" && (
                     <>
                       <td>
                         <label>VISA Number</label>
@@ -304,113 +295,164 @@ const handleSubmit5=()=>{
                   </td>
                 </tr>
                 <tr>
-                <td>Aadhar File</td>
+                  <td>Aadhar File</td>
                   <td>
-                    <div >
-                  <img style={{height:"150px",width:"150px"}} key={0} src={`data:image/png;base64,${fileContent[0]}`} alt={`Image ${fileContent[0] + 1}`} />
-                  </div>
+                    <div>
+                      <img
+                        style={{ height: "150px", width: "150px" }}
+                        key={0}
+                        src={`data:image/png;base64,${fileContent[0]}`}
+                        alt={`Image ${fileContent[0] + 1}`}
+                      />
+                    </div>
                   </td>
                   <td>PAN File</td>
                   <td>
-                  <div >
-                  <img style={{height:"150px",width:"150px"}} key={1} src={`data:image/png;base64,${fileContent[1]}`} alt={`Image ${fileContent[1] + 1}`} />
-                  </div>
+                    <div>
+                      <img
+                        style={{ height: "150px", width: "150px" }}
+                        key={1}
+                        src={`data:image/png;base64,${fileContent[1]}`}
+                        alt={`Image ${fileContent[1] + 1}`}
+                      />
+                    </div>
                   </td>
                   <td>Resume File</td>
-                  <td>
-                  <div >
-                  <object data={`data:application/pdf;base64,${fileContent[4]}`} type="application/pdf" width="150" height="150">
-                  <p>Your browser does not support embedded PDFs.</p>
-                         </object>
-                  </div>
-                  </td>
+                  {fileContent[3] === undefined && (
+                    <td>
+                      <div>
+                        <object
+                          data={`data:application/pdf;base64,${fileContent[2]}`}
+                          type="application/pdf"
+                          width="150"
+                          height="150"
+                        >
+                          <p>Your browser does not support embedded PDFs.</p>
+                        </object>
+                      </div>
+                    </td>
+                  )}
+                  {fileContent[3] !== undefined && (
+                    <td>
+                      <div>
+                        <object
+                          data={`data:application/pdf;base64,${fileContent[4]}`}
+                          type="application/pdf"
+                          width="150"
+                          height="150"
+                        >
+                          <p>Your browser does not support embedded PDFs.</p>
+                        </object>
+                      </div>
+                    </td>
+                  )}
                 </tr>
                 <tr>
                   <td></td>
-                <td>
-    {/* Add a download link for the otherFile */}
-    {fileContent[0] && (
-      <a
-        href={`data:image/png;base64,${fileContent[0]}`}
-        download="adhar.png"
-      >
-        Download Aadhar
-      </a>
-    )}
-  </td>
-  <td></td>
-  <td>  {fileContent[1] && (
-      <a
-        href={`data:image/png;base64,${fileContent[1]}`}
-        download="pan.png"
-      >
-        Download PAN
-      </a>
-    )}
-    </td>
-    <td></td>
-    <td>
-    <td>
-    {fileContent[4] && (
-      <a
-        href={`data:application/pdf;base64,${fileContent[4]}`}
-        download="resume.pdf"
-      >
-        Download Resume
-      </a>
-    )}
-  </td>
-    </td>
-                </tr>
-                <tr>
-                  <td>Passport File</td>
                   <td>
-                  <div >
-                  <img style={{height:"150px",width:"150px"}} key={2} src={`data:image/png;base64,${fileContent[2]}`} alt={`Image ${fileContent[2] + 1}`} />
-                  </div>
+                    {/* Add a download link for the otherFile */}
+                    {fileContent[0] && (
+                      <a
+                        href={`data:image/png;base64,${fileContent[3]}`}
+                        download="adhar.png"
+                      >
+                        Download Aadhar
+                      </a>
+                    )}
                   </td>
-                 
-                  <td>VISA File</td>
-                  <td>
-                  <div >
-                  <img style={{height:"150px",width:"150px"}} key={3} src={`data:image/png;base64,${fileContent[3]}`} alt={`Image ${fileContent[3] + 1}`} />
-                  </div>
-                  </td>
-                </tr>
-                <tr>
                   <td></td>
-                  <td>  {fileContent[2] && (
-      <a
-        href={`data:image/png;base64,${fileContent[2]}`}
-        download="passport.png"
-      >
-        Download Passport
-      </a>
-    )}</td>
-    <td>
-    </td>
-    <td>
-    {fileContent[3] && (
-      <a
-        href={`data:image/png;base64,${fileContent[3]}`}
-        download="visa.png"
-      >
-        Download VISA
-      </a>
-    )}
-    </td>
+                  <td>
+                    {" "}
+                    {fileContent[1] && (
+                      <a
+                        href={`data:image/png;base64,${fileContent[1]}`}
+                        download="pan.png"
+                      >
+                        Download PAN
+                      </a>
+                    )}
+                  </td>
+                  <td></td>
+                  <td>
+                    <td>
+                      {fileContent[3] === undefined && (
+                        <a
+                          href={`data:application/pdf;base64,${fileContent[2]}`}
+                          download="resume.pdf"
+                        >
+                          Download Resume
+                        </a>
+                      )}
+                      {fileContent[3] !== undefined && (
+                        <a
+                          href={`data:application/pdf;base64,${fileContent[4]}`}
+                          download="resume.pdf"
+                        >
+                          Download Resume
+                        </a>
+                      )}
+                    </td>
+                  </td>
                 </tr>
+                {formData.val1 === "Yes" && (
+                  <>
+                    <tr>
+                      <td>Passport File</td>
+                      <td>
+                        <div>
+                          <img
+                            style={{ height: "150px", width: "150px" }}
+                            key={2}
+                            src={`data:image/png;base64,${fileContent[2]}`}
+                            alt={`Image ${fileContent[2] + 1}`}
+                          />
+                        </div>
+                      </td>
+
+                      <td>VISA File</td>
+                      <td>
+                        <div>
+                          <img
+                            style={{ height: "150px", width: "150px" }}
+                            key={3}
+                            src={`data:image/png;base64,${fileContent[3]}`}
+                            alt={`Image ${fileContent[3] + 1}`}
+                          />
+                        </div>
+                      </td>
+                    </tr>
+                    <tr>
+                      <td></td>
+                      <td>
+                        {" "}
+                        {fileContent[2] && (
+                          <a
+                            href={`data:image/png;base64,${fileContent[2]}`}
+                            download="passport.png"
+                          >
+                            Download Passport
+                          </a>
+                        )}
+                      </td>
+                      <td></td>
+                      <td>
+                        {fileContent[3] && (
+                          <a
+                            href={`data:image/png;base64,${fileContent[3]}`}
+                            download="visa.png"
+                          >
+                            Download VISA
+                          </a>
+                        )}
+                      </td>
+                    </tr>
+                  </>
+                )}
               </tbody>
             </table>
-           
           </form>
         )}
-        <br />
-        <br />
       </div>
-      <div>
-      
-    </div>
       <center>
         <a href="javascript:history.go(-1)">Go Back</a>
       </center>
@@ -420,4 +462,4 @@ const handleSubmit5=()=>{
   );
 };
 
-export default AdminPersonalView;
+export default UserPersonalView;
