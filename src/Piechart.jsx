@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import Chart from "react-apexcharts";
 import { Link } from "react-router-dom";
 
-function Piechart() {
+const  Piechart=()=> {
   const [objdata, setObjData] = useState([]);
   const [objlength, setObjLength] = useState(0);
 

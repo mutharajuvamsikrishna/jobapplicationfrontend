@@ -32,7 +32,7 @@ import AdminPasswordmsg from "./AdminPasswordmsg";
 import AdminPasswordChange from "./AdminPasswordChange";
 import ViewAlldetails from "./ViewAlldetails";
 import AdminEdit from "./AdminEdit";
-import Piechart from "./PieChart";
+import Piechart from "./Piechart"
 import Regsucess1 from "./Regsucess1";
 import Profile from "./Profile";
 import ChangePassSuccess from "./ChangePassSuccess";
