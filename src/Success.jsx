@@ -14,7 +14,7 @@ const Success = () => {
   const handleSubmit = (event) => {
     event.preventDefault();
 
-    navigate("/loginsucess", { state: { data: data } }); // Use navigate to change the rout
+    navigate("/viewapplication", { state: { data: data } });
   }
   const handleSubmit2 = () => {
     navigate("/profile", { state: { data: data } });

@@ -17,7 +17,7 @@ email:email
         // Now you have access to the token and email, you can use them as needed
        
         localStorage.setItem('jwtToken',token);
-        navigate("/loginsucess", { state: { data: data } });
+        navigate("/viewapplication", { state: { data: data } });
     }, [location.search]);
 
     if (loading) {

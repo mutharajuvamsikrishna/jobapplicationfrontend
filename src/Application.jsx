@@ -1756,7 +1756,7 @@ const Application = () => {
             <br />
             <div className="text-center">
               <Link
-                to="/loginsucess"
+                to="/viewapplication"
                 state={{ data: data }}
                 style={{ color: "bluegit" }}
               >

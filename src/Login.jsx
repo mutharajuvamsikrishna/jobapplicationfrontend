@@ -37,7 +37,7 @@ const  Login=()=> {
 
         if (response.status === 200) {
           localStorage.setItem('jwtToken', response.data.jwt);
-          navigate("/loginsucess", { state: { data: values } });
+          navigate("/viewapplication", { state: { data: values } });
         }
       } catch (error) {
        setRes(true);

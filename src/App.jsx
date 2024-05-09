@@ -15,7 +15,6 @@ import Forgetpassword from "./Forgetpassword";
 import Invalidcredits from "./Invalidcredits";
 import ChangeOtp from "./Changeotp";
 import Forgetpassword1 from "./Forgetpassword1";
-import Applicantshome from "./Applicantshome";
 import Application from "./Application";
 import Sucess from "./Success";
 import ViewProApplication from "./ViewProApplication";
@@ -63,7 +62,6 @@ function App() {
           <Route path="/changepassword" element={<ChangeOtp />} />
           <Route path="/changepassword1" element={<Forgetpassword1 />} />
           <Route path="/changepasswordsucess" element={<ChangePassSuccess />} />
-          <Route path="/loginsucess" element={<Applicantshome />} />
           <Route path="/application" element={<Application />} />
          
           <Route path="/success" element={<Sucess />} />

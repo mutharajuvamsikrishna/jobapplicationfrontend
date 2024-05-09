@@ -62,6 +62,9 @@ const ViewProApplication = () => {
       </div>
       <br />
       <div className="row adj">
+        <div className="d-flex mb-3">
+<button className="btn btn-success" onClick={()=>navigate("/application", { state: { data: data } })}>Add New Job</button>
+        </div>
         <table className="table table-striped table-bordered">
           <thead>
             <tr>
@@ -91,13 +94,13 @@ const ViewProApplication = () => {
         </table>
         <br/>
       </div>
-
+{/* 
       <center>
         <Link to="/loginsucess" state={{ data }}>
           Go Back
         </Link>
        
-      </center>
+      </center> */}
       <br/>
       <br/>
     </div>
