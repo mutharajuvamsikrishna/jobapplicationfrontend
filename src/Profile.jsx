@@ -2,8 +2,8 @@ import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { useLocation, Link } from "react-router-dom";
 import "./ViweAll.css";
-//import { SlLogout } from "react-icons/Sl";
-import { SlLogout } from "react-icons/Sl";
+import { SlLogout } from "react-icons/sl";
+// import { SlLogout } from "react-icons/Sl";
 import { getProfiles, getViewAddmore } from "./Services/Api";
 import { useNavigate } from "react-router-dom";
 const Profile = () => {
