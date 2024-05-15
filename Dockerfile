@@ -10,7 +10,6 @@ RUN npm install --production
 
 # Copy all files
 COPY . .
-# Install Vite globally
-RUN npm install -g vite
+
 
 CMD ["npm","run","dev"]
