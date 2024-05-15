@@ -13,4 +13,4 @@ COPY . .
 # Install Vite globally
 RUN npm install -g vite
 
-CMD ["npm", "run", "dev"]
+CMD ["npm","run","dev"]
