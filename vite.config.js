@@ -17,5 +17,7 @@ export default defineConfig({
         warn(warning);
       }
     }
+  },server: {
+    host: '0.0.0.0',
   }
 });
